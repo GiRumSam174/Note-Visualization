@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piano Pitch Detector - High Sensitivity</title>
+    <title>Live Piano Chord & Pitch Visualizer (C2 - C6)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -66,15 +67,15 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-3 md:p-8">
 
-    <div class="w-full max-w-5xl flex flex-col gap-6">
+    <div class="w-full max-w-6xl flex flex-col gap-6">
 
         <!-- Header -->
         <header class="text-center py-4 border-b border-stone-800">
             <h1 class="serif-font text-3xl md:text-5xl font-bold text-amber-500 tracking-tight">
-                High-Sensitivity Piano Pitch Detector
+                Live Piano Chord & Pitch Visualizer
             </h1>
             <p class="text-xs md:text-sm text-stone-400 mt-1">
-                Optimized for mobile microphone gain and acoustic piano response.
+                Polyphonic Chord Detection & 4-Octave Staff Display (C2 to C6)
             </p>
         </header>
 
@@ -91,19 +92,19 @@
                     </button>
                 </div>
                 
-                <!-- Mic Sensitivity Booster Slider -->
+                <!-- Mic Gain Boost -->
                 <div>
                     <div class="flex justify-between items-center text-xs font-medium text-stone-400 mb-1">
                         <label for="gainSlider"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Software Gain Boost</label>
-                        <span id="gainVal" class="text-amber-400 font-mono font-bold">5x Boost</span>
+                        <span id="gainVal" class="text-amber-400 font-mono font-bold">6x Boost</span>
                     </div>
-                    <input type="range" id="gainSlider" min="1" max="20" value="5" class="w-full accent-amber-500 cursor-pointer h-1.5 bg-stone-700 rounded-lg appearance-none">
+                    <input type="range" id="gainSlider" min="1" max="25" value="6" class="w-full accent-amber-500 cursor-pointer h-1.5 bg-stone-700 rounded-lg appearance-none">
                 </div>
 
-                <!-- Volume Meter -->
+                <!-- Volume Signal Meter -->
                 <div>
                     <div class="flex justify-between text-xs text-stone-500 mb-1 font-mono">
-                        <span>Audio Signal Level</span>
+                        <span>Input Signal</span>
                         <span id="volumeVal">0%</span>
                     </div>
                     <div class="w-full bg-stone-950 rounded-full h-2 overflow-hidden border border-stone-800">
@@ -112,18 +113,18 @@
                 </div>
             </div>
 
-            <!-- Active Pitch Display -->
+            <!-- Identified Chord Display Banner -->
             <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl">
-                <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">Detected Note</span>
-                <div id="noteDisplay" class="text-5xl font-black text-amber-400 font-mono my-1">--</div>
-                <div id="freqDisplay" class="text-xs text-stone-400 font-mono">0 Hz (MIDI --)</div>
+                <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">Detected Chord</span>
+                <div id="chordDisplay" class="text-4xl md:text-5xl font-black text-amber-400 font-mono my-1">--</div>
+                <div id="notesListDisplay" class="text-xs text-stone-400 font-mono">Active Notes: None</div>
             </div>
 
-            <!-- Virtual Instrument Option -->
+            <!-- Virtual Instrument Controls -->
             <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
                 <div>
                     <label for="soundSelect" class="text-xs font-semibold text-stone-400 uppercase tracking-wider block mb-2">
-                        Virtual Piano Sound
+                        Virtual Synthesizer Preset
                     </label>
                     <select id="soundSelect" class="w-full bg-stone-950 border border-stone-800 text-stone-200 text-sm font-medium rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
                         <option value="felt">Soft Felt Piano</option>
@@ -131,7 +132,7 @@
                     </select>
                 </div>
                 <p class="text-[11px] text-stone-500 mt-2 leading-relaxed">
-                    Position your smartphone near the piano soundboard for best accuracy.
+                    Test chords on screen or play your acoustic piano near your device mic.
                 </p>
             </div>
 
@@ -140,28 +141,28 @@
         <!-- Grand Staff Display -->
         <main class="parchment-card rounded-2xl p-4 md:p-6 border border-amber-900/30 shadow-2xl relative overflow-x-auto">
             <div class="flex justify-between items-center mb-2 pb-2 border-b border-stone-900/10">
-                <h2 class="serif-font text-2xl font-bold text-stone-900">Live Grand Staff Display</h2>
+                <h2 class="serif-font text-2xl font-bold text-stone-900">Grand Staff Visualizer (C2 to C6)</h2>
                 <span class="text-xs text-stone-600 font-mono">Treble & Bass Clefs</span>
             </div>
             
-            <div class="w-full flex justify-center py-2 min-w-[600px]">
-                <svg id="staffSvg" viewBox="0 0 800 280" class="w-full h-auto select-none"></svg>
+            <div class="w-full flex justify-center py-2 min-w-[700px]">
+                <svg id="staffSvg" viewBox="0 0 850 320" class="w-full h-auto select-none"></svg>
             </div>
         </main>
 
-        <!-- Piano Keyboard Visualizer -->
+        <!-- Expanded 4-Octave Keyboard Visualizer (C2 - C6) -->
         <section class="bg-stone-900 border border-stone-800 rounded-2xl p-4 md:p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-stone-300 font-semibold text-sm flex items-center gap-2">
                     <i class="fa-solid fa-keyboard text-amber-500"></i>
-                    Interactive Keyboard (C3 – C6)
+                    4-Octave Piano Keyboard (C2 – C6)
                 </h3>
-                <span class="text-xs text-stone-500">Click or touch keys to test synthesizer</span>
+                <span class="text-xs text-stone-500">Click multiple keys to test chord recognition</span>
             </div>
 
             <div class="w-full overflow-x-auto pb-2">
-                <div id="keyboardContainer" class="relative h-44 min-w-[700px] max-w-full mx-auto flex justify-center">
-                    <!-- Keys rendered via JavaScript -->
+                <div id="keyboardContainer" class="relative h-44 min-w-[900px] max-w-full mx-auto flex justify-center">
+                    <!-- Keys rendered dynamically -->
                 </div>
             </div>
         </section>
@@ -170,8 +171,67 @@
 
     <script>
         const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const START_MIDI = 48; // C3
+        const START_MIDI = 36; // C2
         const END_MIDI = 84;   // C6
+
+        // --- Chord Recognition Engine ---
+        class ChordAnalyzer {
+            static identifyChord(midiNotes) {
+                if (!midiNotes || midiNotes.length === 0) return { name: "--", notes: [] };
+
+                // Unique MIDI notes sorted ascending
+                const uniqueMidis = [...new Set(midiNotes)].sort((a, b) => a - b);
+                const noteNamesFormatted = uniqueMidis.map(m => `${NOTE_NAMES[m % 12]}${Math.floor(m / 12) - 1}`);
+
+                if (uniqueMidis.length === 1) {
+                    return { name: `${noteNamesFormatted[0]} (Single Note)`, notes: noteNamesFormatted };
+                }
+
+                // Pitch classes (0 to 11)
+                const pitchClasses = [...new Set(uniqueMidis.map(m => m % 12))].sort((a, b) => a - b);
+                const bassPitchClass = uniqueMidis[0] % 12;
+                const bassRootName = NOTE_NAMES[bassPitchClass];
+
+                if (pitchClasses.length === 2) {
+                    const interval = (pitchClasses[1] - pitchClasses[0] + 12) % 12;
+                    if (interval === 7) return { name: `${bassRootName}5 (Power Chord)`, notes: noteNamesFormatted };
+                    return { name: `${NOTE_NAMES[pitchClasses[0]]} + ${NOTE_NAMES[pitchClasses[1]]}`, notes: noteNamesFormatted };
+                }
+
+                // Triads and 7ths Pattern Matcher
+                const CHORD_PATTERNS = [
+                    { name: "Maj", intervals: [0, 4, 7] },
+                    { name: "min", intervals: [0, 3, 7] },
+                    { name: "dim", intervals: [0, 3, 6] },
+                    { name: "aug", intervals: [0, 4, 8] },
+                    { name: "sus2", intervals: [0, 2, 7] },
+                    { name: "sus4", intervals: [0, 5, 7] },
+                    { name: "7", intervals: [0, 4, 7, 10] },
+                    { name: "Maj7", intervals: [0, 4, 7, 11] },
+                    { name: "m7", intervals: [0, 3, 7, 10] },
+                    { name: "m7b5", intervals: [0, 3, 6, 10] },
+                    { name: "dim7", intervals: [0, 3, 6, 9] }
+                ];
+
+                for (let rootPC of pitchClasses) {
+                    const relIntervals = pitchClasses.map(pc => (pc - rootPC + 12) % 12).sort((a, b) => a - b);
+                    const rootName = NOTE_NAMES[rootPC];
+
+                    for (let pattern of CHORD_PATTERNS) {
+                        const isMatch = pattern.intervals.every(i => relIntervals.includes(i));
+                        if (isMatch) {
+                            const isInversion = rootPC !== bassPitchClass;
+                            const chordName = isInversion 
+                                ? `${rootName} ${pattern.name} / ${bassRootName}`
+                                : `${rootName} ${pattern.name}`;
+                            return { name: chordName, notes: noteNamesFormatted };
+                        }
+                    }
+                }
+
+                return { name: `${bassRootName} Cluster`, notes: noteNamesFormatted };
+            }
+        }
 
         // --- Audio Synthesizer Class ---
         class AudioSynth {
@@ -224,7 +284,7 @@
             }
         }
 
-        // --- Staff Renderer ---
+        // --- Grand Staff Renderer (C2 - C6) ---
         class StaffRenderer {
             constructor(svgId) {
                 this.svg = document.getElementById(svgId);
@@ -234,18 +294,21 @@
             renderBaseStaff() {
                 this.svg.innerHTML = '';
                 const xStart = 80;
-                const width = 680;
-                const trebleY = 40;
-                const bassY = 160;
+                const width = 730;
+                const trebleY = 60;
+                const bassY = 180;
                 const lineSpacing = 10;
 
+                // Treble Staff Lines
                 for (let i = 0; i < 5; i++) {
                     this.createSVGLine(xStart, trebleY + i * lineSpacing, xStart + width, trebleY + i * lineSpacing);
                 }
+                // Bass Staff Lines
                 for (let i = 0; i < 5; i++) {
                     this.createSVGLine(xStart, bassY + i * lineSpacing, xStart + width, bassY + i * lineSpacing);
                 }
 
+                // Clef Symbols
                 this.createText(xStart - 35, trebleY + 38, '𝄞', '42px');
                 this.createText(xStart - 35, bassY + 32, '𝄢', '36px');
 
@@ -274,58 +337,69 @@
                 this.svg.appendChild(t);
             }
 
-            drawActiveNote(midi) {
+            drawActiveNotes(midiArray) {
                 this.noteGroup.innerHTML = '';
-                if (!midi || midi < 36 || midi > 96) return;
+                if (!midiArray || midiArray.length === 0) return;
 
-                const x = 430;
                 const step = 5;
                 const noteOffsets = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
-                const octave = Math.floor(midi / 12) - 5;
-                const noteIndex = midi % 12;
-                const diatonicSteps = octave * 7 + noteOffsets[noteIndex];
+                
+                // Spread notes horizontally if a chord is played
+                midiArray.forEach((midi, idx) => {
+                    const x = 360 + (idx * 30);
+                    const octave = Math.floor(midi / 12) - 5;
+                    const noteIndex = midi % 12;
+                    const diatonicSteps = octave * 7 + noteOffsets[noteIndex];
 
-                const y = 130 - (diatonicSteps * step);
+                    const y = 150 - (diatonicSteps * step); // Center C4 at y=150
 
-                if (midi === 60) {
-                    this.createNoteLedger(x, 130);
-                } else if (midi <= 40) {
-                    this.createNoteLedger(x, 210);
-                } else if (midi >= 81) {
-                    this.createNoteLedger(x, 30);
-                }
+                    // Ledger Lines below Bass Staff (C2, D2, E2, F2)
+                    if (midi <= 38) { // C2, C#2, D2
+                        this.createNoteLedger(x, 260); // Ledger line 2 below bass
+                        this.createNoteLedger(x, 250); // Ledger line 1 below bass
+                    } else if (midi <= 41) { // E2, F2
+                        this.createNoteLedger(x, 230);
+                    } else if (midi === 60) { // Middle C4
+                        this.createNoteLedger(x, 150);
+                    } else if (midi >= 81) { // High A5+
+                        this.createNoteLedger(x, 50);
+                    }
 
-                const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-                ellipse.setAttribute('cx', x);
-                ellipse.setAttribute('cy', y);
-                ellipse.setAttribute('rx', '6.5');
-                ellipse.setAttribute('ry', '4.5');
-                ellipse.setAttribute('transform', `rotate(-20 ${x} ${y})`);
-                ellipse.setAttribute('fill', '#d97706');
-                ellipse.setAttribute('stroke', '#78350f');
-                ellipse.setAttribute('stroke-width', '1.5');
-                this.noteGroup.appendChild(ellipse);
+                    // Notehead
+                    const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                    ellipse.setAttribute('cx', x);
+                    ellipse.setAttribute('cy', y);
+                    ellipse.setAttribute('rx', '6.5');
+                    ellipse.setAttribute('ry', '4.5');
+                    ellipse.setAttribute('transform', `rotate(-20 ${x} ${y})`);
+                    ellipse.setAttribute('fill', '#d97706');
+                    ellipse.setAttribute('stroke', '#78350f');
+                    ellipse.setAttribute('stroke-width', '1.5');
+                    this.noteGroup.appendChild(ellipse);
 
-                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                const stemUp = midi < 71;
-                stem.setAttribute('x1', stemUp ? x + 6 : x - 6);
-                stem.setAttribute('y1', y);
-                stem.setAttribute('x2', stemUp ? x + 6 : x - 6);
-                stem.setAttribute('y2', stemUp ? y - 28 : y + 28);
-                stem.setAttribute('stroke', '#78350f');
-                stem.setAttribute('stroke-width', '1.5');
-                this.noteGroup.appendChild(stem);
+                    // Stem
+                    const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    const stemUp = midi < 71;
+                    stem.setAttribute('x1', stemUp ? x + 6 : x - 6);
+                    stem.setAttribute('y1', y);
+                    stem.setAttribute('x2', stemUp ? x + 6 : x - 6);
+                    stem.setAttribute('y2', stemUp ? y - 26 : y + 26);
+                    stem.setAttribute('stroke', '#78350f');
+                    stem.setAttribute('stroke-width', '1.5');
+                    this.noteGroup.appendChild(stem);
 
-                if (NOTE_NAMES[noteIndex].includes('#')) {
-                    const sharp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    sharp.setAttribute('x', x - 18);
-                    sharp.setAttribute('y', y + 5);
-                    sharp.setAttribute('font-size', '16');
-                    sharp.setAttribute('font-weight', 'bold');
-                    sharp.setAttribute('fill', '#d97706');
-                    sharp.textContent = '♯';
-                    this.noteGroup.appendChild(sharp);
-                }
+                    // Sharp Accidental
+                    if (NOTE_NAMES[noteIndex].includes('#')) {
+                        const sharp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        sharp.setAttribute('x', x - 18);
+                        sharp.setAttribute('y', y + 5);
+                        sharp.setAttribute('font-size', '16');
+                        sharp.setAttribute('font-weight', 'bold');
+                        sharp.setAttribute('fill', '#d97706');
+                        sharp.textContent = '♯';
+                        this.noteGroup.appendChild(sharp);
+                    }
+                });
             }
 
             createNoteLedger(x, y) {
@@ -340,19 +414,20 @@
             }
         }
 
-        // --- Keyboard Renderer ---
+        // --- Keyboard Renderer (C2 - C6) ---
         class KeyboardRenderer {
-            constructor(containerId, synth, onKeyTrigger) {
+            constructor(containerId, synth, onActiveKeysChange) {
                 this.container = document.getElementById(containerId);
                 this.synth = synth;
-                this.onKeyTrigger = onKeyTrigger;
+                this.onActiveKeysChange = onActiveKeysChange;
                 this.keyMap = new Map();
+                this.activeMidiSet = new Set();
                 this.renderKeys();
             }
 
             renderKeys() {
                 this.container.innerHTML = '';
-                const totalWhiteKeys = 22;
+                const totalWhiteKeys = 29; // C2 to C6 inclusive
                 let whiteIndex = 0;
 
                 for (let midi = START_MIDI; midi <= END_MIDI; midi++) {
@@ -369,7 +444,7 @@
                         keyEl.style.height = '100%';
 
                         const label = document.createElement('span');
-                        label.className = 'text-[10px] font-semibold text-stone-500 pointer-events-none';
+                        label.className = 'text-[9px] font-semibold text-stone-500 pointer-events-none';
                         label.textContent = `${noteName}${octave}`;
                         keyEl.appendChild(label);
 
@@ -384,7 +459,14 @@
                     keyEl.addEventListener('pointerdown', (e) => {
                         e.preventDefault();
                         this.synth.playPitch(midi);
-                        if (this.onKeyTrigger) this.onKeyTrigger(midi);
+                        
+                        if (this.activeMidiSet.has(midi)) {
+                            this.activeMidiSet.delete(midi);
+                        } else {
+                            this.activeMidiSet.add(midi);
+                        }
+                        
+                        this.updateVisuals();
                     });
 
                     this.container.appendChild(keyEl);
@@ -392,23 +474,35 @@
                 }
             }
 
-            highlightKey(midi) {
-                this.clearAll();
-                const keyEl = this.keyMap.get(midi);
-                if (keyEl) {
-                    keyEl.classList.add('active');
+            setActiveMidis(midiArray) {
+                this.activeMidiSet = new Set(midiArray);
+                this.updateVisuals();
+            }
+
+            updateVisuals() {
+                this.keyMap.forEach((el, midi) => {
+                    if (this.activeMidiSet.has(midi)) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+
+                if (this.onActiveKeysChange) {
+                    this.onActiveKeysChange([...this.activeMidiSet]);
                 }
             }
 
             clearAll() {
-                this.keyMap.forEach(el => el.classList.remove('active'));
+                this.activeMidiSet.clear();
+                this.updateVisuals();
             }
         }
 
-        // --- Pitch Detector with Gain Booster ---
-        class PitchDetector {
-            constructor(onPitchDetected, onVolumeChange) {
-                this.onPitchDetected = onPitchDetected;
+        // --- Polyphonic Spectrum Pitch Detector ---
+        class PolyphonicPitchDetector {
+            constructor(onPolyPitchDetected, onVolumeChange) {
+                this.onPolyPitchDetected = onPolyPitchDetected;
                 this.onVolumeChange = onVolumeChange;
                 this.audioCtx = null;
                 this.gainNode = null;
@@ -416,26 +510,21 @@
                 this.micStream = null;
                 this.isListening = false;
                 this.animFrame = null;
-                this.gainMultiplier = 5;
+                this.gainMultiplier = 6;
             }
 
             async start() {
-                // Use standard audio constraints to allow smartphone preamps to engage
-                this.micStream = await navigator.mediaDevices.getUserMedia({
-                    audio: true
-                });
+                this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
                 this.audioCtx = new AudioCtx();
-                
                 const source = this.audioCtx.createMediaStreamSource(this.micStream);
 
-                // Software Gain Node to boost soft piano input
                 this.gainNode = this.audioCtx.createGain();
                 this.gainNode.gain.setValueAtTime(this.gainMultiplier, this.audioCtx.currentTime);
 
                 this.analyser = this.audioCtx.createAnalyser();
-                this.analyser.fftSize = 4096; // Larger FFT size for piano pitch resolution
+                this.analyser.fftSize = 8192; // High resolution FFT for C2-C6 spectrum
 
                 source.connect(this.gainNode);
                 this.gainNode.connect(this.analyser);
@@ -461,87 +550,69 @@
             process() {
                 if (!this.isListening) return;
 
-                const buffer = new Float32Array(this.analyser.fftSize);
-                this.analyser.getFloatTimeDomainData(buffer);
+                const bufferLength = this.analyser.frequencyBinCount;
+                const freqData = new Float32Array(bufferLength);
+                this.analyser.getFloatFrequencyData(freqData);
 
-                // Calculate Volume Level
-                let sumSquare = 0;
-                for (let i = 0; i < buffer.length; i++) {
-                    sumSquare += buffer[i] * buffer[i];
+                // Compute Volume
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    if (freqData[i] > -100) sum += Math.pow(10, freqData[i] / 20);
                 }
-                const rms = Math.sqrt(sumSquare / buffer.length);
+                const rms = sum / bufferLength;
                 if (this.onVolumeChange) this.onVolumeChange(rms);
 
-                // Low volume threshold floor (0.002) for quiet instruments
-                if (rms > 0.002) {
-                    const pitchHz = this.autoCorrelate(buffer, this.audioCtx.sampleRate);
-                    if (pitchHz !== -1) {
-                        const midi = Math.round(69 + 12 * Math.log2(pitchHz / 440));
-                        this.onPitchDetected(midi, pitchHz);
-                    }
+                if (rms > 0.0005) {
+                    const detectedMidis = this.findSpectrumPeaks(freqData, this.audioCtx.sampleRate);
+                    this.onPolyPitchDetected(detectedMidis);
                 } else {
-                    this.onPitchDetected(null, 0);
+                    this.onPolyPitchDetected([]);
                 }
 
                 this.animFrame = requestAnimationFrame(() => this.process());
             }
 
-            autoCorrelate(buffer, sampleRate) {
-                let SIZE = buffer.length;
-                let rms = 0;
+            findSpectrumPeaks(freqData, sampleRate) {
+                const detectedMidis = [];
+                const binHz = sampleRate / (this.analyser.fftSize);
+                const magnitudeThreshold = -62; // dB threshold
 
-                for (let i = 0; i < SIZE; i++) {
-                    let val = buffer[i];
-                    rms += val * val;
-                }
-                rms = Math.sqrt(rms / SIZE);
-                if (rms < 0.001) return -1;
-
-                let r1 = 0, r2 = SIZE - 1, thres = 0.2;
-                for (let i = 0; i < SIZE / 2; i++) {
-                    if (Math.abs(buffer[i]) < thres) { r1 = i; break; }
-                }
-                for (let i = 1; i < SIZE / 2; i++) {
-                    if (Math.abs(buffer[SIZE - i]) < thres) { r2 = SIZE - i; break; }
-                }
-
-                buffer = buffer.slice(r1, r2);
-                SIZE = buffer.length;
-
-                let c = new Array(SIZE).fill(0);
-                for (let i = 0; i < SIZE; i++) {
-                    for (let j = 0; j < SIZE - i; j++) {
-                        c[i] = c[i] + buffer[j] * buffer[j + i];
+                const peakBins = [];
+                for (let i = 5; i < freqData.length - 5; i++) {
+                    if (freqData[i] > magnitudeThreshold) {
+                        if (freqData[i] > freqData[i - 1] && freqData[i] > freqData[i + 1]) {
+                            const freqHz = i * binHz;
+                            const midi = Math.round(69 + 12 * Math.log2(freqHz / 440));
+                            if (midi >= START_MIDI && midi <= END_MIDI) {
+                                peakBins.push({ midi, db: freqData[i] });
+                            }
+                        }
                     }
                 }
 
-                let d = 0;
-                while (c[d] > c[d + 1]) d++;
-                let maxval = -1, maxpos = -1;
-                for (let i = d; i < SIZE; i++) {
-                    if (c[i] > maxval) {
-                        maxval = c[i];
-                        maxpos = i;
+                // Filter out harmonic overtones
+                peakBins.sort((a, b) => b.db - a.db);
+                for (let peak of peakBins) {
+                    const isOvertone = detectedMidis.some(existingMidi => {
+                        const interval = (peak.midi - existingMidi);
+                        return interval === 12 || interval === 19 || interval === 24; // 8ve, 12th, 15th
+                    });
+                    if (!isOvertone && detectedMidis.length < 5) {
+                        detectedMidis.push(peak.midi);
                     }
                 }
-                let T0 = maxpos;
 
-                let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
-                let a = (x1 + x3 - 2 * x2) / 2;
-                let b = (x3 - x1) / 2;
-                if (a) T0 = T0 - b / (2 * a);
-
-                return sampleRate / T0;
+                return detectedMidis.sort((a, b) => a - b);
             }
         }
 
-        // --- App Controller ---
+        // --- Main App Controller ---
         document.addEventListener('DOMContentLoaded', () => {
             const synth = new AudioSynth();
             const staffRenderer = new StaffRenderer('staffSvg');
 
-            const noteDisplay = document.getElementById('noteDisplay');
-            const freqDisplay = document.getElementById('freqDisplay');
+            const chordDisplay = document.getElementById('chordDisplay');
+            const notesListDisplay = document.getElementById('notesListDisplay');
             const volumeBar = document.getElementById('volumeBar');
             const volumeVal = document.getElementById('volumeVal');
             const soundSelect = document.getElementById('soundSelect');
@@ -550,33 +621,26 @@
             const gainSlider = document.getElementById('gainSlider');
             const gainVal = document.getElementById('gainVal');
 
-            const keyboard = new KeyboardRenderer('keyboardContainer', synth, (midi) => {
-                handleNoteActivation(midi);
+            const keyboard = new KeyboardRenderer('keyboardContainer', synth, (activeMidis) => {
+                handleMidiUpdates(activeMidis);
             });
 
-            function handleNoteActivation(midi, pitchHz = null) {
-                if (midi) {
-                    const noteName = NOTE_NAMES[midi % 12];
-                    const octave = Math.floor(midi / 12) - 1;
-                    const freq = pitchHz ? Math.round(pitchHz) : Math.round(440 * Math.pow(2, (midi - 69) / 12));
+            function handleMidiUpdates(midiArray) {
+                const chordResult = ChordAnalyzer.identifyChord(midiArray);
+                chordDisplay.textContent = chordResult.name;
+                notesListDisplay.textContent = chordResult.notes.length > 0 
+                    ? `Active Notes: ${chordResult.notes.join(', ')}` 
+                    : 'Active Notes: None';
 
-                    noteDisplay.textContent = `${noteName}${octave}`;
-                    freqDisplay.textContent = `${freq} Hz (MIDI ${midi})`;
-
-                    keyboard.highlightKey(midi);
-                    staffRenderer.drawActiveNote(midi);
-                } else {
-                    noteDisplay.textContent = '--';
-                    freqDisplay.textContent = '0 Hz (MIDI --)';
-                    keyboard.clearAll();
-                    staffRenderer.drawActiveNote(null);
-                }
+                staffRenderer.drawActiveNotes(midiArray);
             }
 
-            const pitchDetector = new PitchDetector(
-                (midi, pitchHz) => handleNoteActivation(midi, pitchHz),
+            const pitchDetector = new PolyphonicPitchDetector(
+                (detectedMidis) => {
+                    keyboard.setActiveMidis(detectedMidis);
+                },
                 (rms) => {
-                    const pct = Math.min(100, Math.round(rms * 500));
+                    const pct = Math.min(100, Math.round(rms * 10000));
                     volumeBar.style.width = `${pct}%`;
                     volumeVal.textContent = `${pct}%`;
                 }
@@ -598,7 +662,7 @@
                     micBtnText.textContent = 'Enable Microphone';
                     btnToggleMic.classList.replace('bg-red-500', 'bg-amber-500');
                     btnToggleMic.classList.replace('hover:bg-red-400', 'hover:bg-amber-400');
-                    handleNoteActivation(null);
+                    keyboard.clearAll();
                     volumeBar.style.width = '0%';
                     volumeVal.textContent = '0%';
                 }
