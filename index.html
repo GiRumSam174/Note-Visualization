@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Piano Chord & Pitch Visualizer (C2 - C6)</title>
+    <title>Piano Sight-Reading Flashcard Trainer</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -63,106 +63,187 @@
             background: linear-gradient(to bottom, #d97706 0%, #78350f 100%) !important;
             transform: translateY(2px);
         }
+
+        /* Custom Radio Button Styling */
+        .radio-btn-group input[type="radio"]:checked + label {
+            background-color: #f59e0b;
+            color: #0c0a09;
+            border-color: #f59e0b;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-3 md:p-8">
 
-    <div class="w-full max-w-6xl flex flex-col gap-6">
+    <div class="w-full max-w-5xl flex flex-col gap-6">
 
-        <!-- Header -->
-        <header class="text-center py-4 border-b border-stone-800">
-            <h1 class="serif-font text-3xl md:text-5xl font-bold text-amber-500 tracking-tight">
-                Live Piano Chord & Pitch Visualizer
-            </h1>
-            <p class="text-xs md:text-sm text-stone-400 mt-1">
-                Polyphonic Chord Detection & 4-Octave Staff Display (C2 to C6)
-            </p>
-        </header>
-
-        <!-- Dashboard Controls -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            <!-- Mic Control Panel -->
-            <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl gap-4">
-                <div>
-                    <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider block mb-2">Microphone Control</span>
-                    <button id="btnToggleMic" class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-microphone text-base"></i>
-                        <span id="micBtnText">Enable Microphone</span>
-                    </button>
-                </div>
-                
-                <!-- Mic Gain Boost -->
-                <div>
-                    <div class="flex justify-between items-center text-xs font-medium text-stone-400 mb-1">
-                        <label for="gainSlider"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Software Gain Boost</label>
-                        <span id="gainVal" class="text-amber-400 font-mono font-bold">6x Boost</span>
-                    </div>
-                    <input type="range" id="gainSlider" min="1" max="25" value="6" class="w-full accent-amber-500 cursor-pointer h-1.5 bg-stone-700 rounded-lg appearance-none">
-                </div>
-
-                <!-- Volume Signal Meter -->
-                <div>
-                    <div class="flex justify-between text-xs text-stone-500 mb-1 font-mono">
-                        <span>Input Signal</span>
-                        <span id="volumeVal">0%</span>
-                    </div>
-                    <div class="w-full bg-stone-950 rounded-full h-2 overflow-hidden border border-stone-800">
-                        <div id="volumeBar" class="bg-teal-500 h-full w-0 transition-all duration-75"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Identified Chord Display Banner -->
-            <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl">
-                <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest mb-1">Detected Chord</span>
-                <div id="chordDisplay" class="text-4xl md:text-5xl font-black text-amber-400 font-mono my-1">--</div>
-                <div id="notesListDisplay" class="text-xs text-stone-400 font-mono">Active Notes: None</div>
-            </div>
-
-            <!-- Virtual Instrument Controls -->
-            <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
-                <div>
-                    <label for="soundSelect" class="text-xs font-semibold text-stone-400 uppercase tracking-wider block mb-2">
-                        Virtual Synthesizer Preset
-                    </label>
-                    <select id="soundSelect" class="w-full bg-stone-950 border border-stone-800 text-stone-200 text-sm font-medium rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
-                        <option value="felt">Soft Felt Piano</option>
-                        <option value="grand">Grand Piano</option>
-                    </select>
-                </div>
-                <p class="text-[11px] text-stone-500 mt-2 leading-relaxed">
-                    Test chords on screen or play your acoustic piano near your device mic.
+        <!-- App Header & Scoreboard -->
+        <header class="flex flex-col md:flex-row justify-between items-center pb-4 border-b border-stone-800 gap-4">
+            <div>
+                <h1 class="serif-font text-3xl md:text-4xl font-bold text-amber-500 tracking-tight">
+                    Piano Flashcard Trainer
+                </h1>
+                <p class="text-xs text-stone-400 mt-0.5">
+                    Listen & match treble/bass stave notes in real time.
                 </p>
             </div>
 
-        </section>
+            <!-- Score Stats -->
+            <div class="flex items-center gap-4 bg-stone-900 border border-stone-800 px-5 py-2.5 rounded-2xl shadow-lg">
+                <div class="text-center">
+                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Score</span>
+                    <span id="scoreDisplay" class="text-2xl font-black text-amber-400 font-mono">0</span>
+                </div>
+                <div class="h-8 w-px bg-stone-800"></div>
+                <div class="text-center">
+                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Streak</span>
+                    <span id="streakDisplay" class="text-2xl font-black text-teal-400 font-mono">0</span>
+                </div>
+                <div class="h-8 w-px bg-stone-800"></div>
+                <div class="text-center">
+                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Speed Pace</span>
+                    <span id="speedDisplayVal" class="text-2xl font-black text-amber-400 font-mono">4.0s</span>
+                </div>
+            </div>
+        </header>
 
-        <!-- Grand Staff Display -->
-        <main class="parchment-card rounded-2xl p-4 md:p-6 border border-amber-900/30 shadow-2xl relative overflow-x-auto">
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-stone-900/10">
-                <h2 class="serif-font text-2xl font-bold text-stone-900">Grand Staff Visualizer (C2 to C6)</h2>
-                <span class="text-xs text-stone-600 font-mono">Treble & Bass Clefs</span>
-            </div>
+        <!-- Main Flashcard Section -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div class="w-full flex justify-center py-2 min-w-[700px]">
-                <svg id="staffSvg" viewBox="0 0 850 320" class="w-full h-auto select-none"></svg>
+            <!-- Left Side: Grand Staff Visualizer Card -->
+            <div class="md:col-span-2 flex flex-col gap-4">
+                
+                <div class="parchment-card rounded-2xl p-4 md:p-6 border border-amber-900/30 shadow-2xl relative">
+                    <!-- Flashcard Prompt Header -->
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-stone-900/10">
+                        <div>
+                            <span class="text-xs font-semibold text-stone-600 uppercase tracking-widest block">Target Prompt</span>
+                            <h2 id="targetLabel" class="serif-font text-2xl font-bold text-stone-900">Press Start to Begin</h2>
+                        </div>
+                        <span id="clefBadge" class="px-3 py-1 bg-amber-200/80 text-amber-900 font-bold text-xs rounded-full border border-amber-400/40">
+                            Treble Clef
+                        </span>
+                    </div>
+
+                    <!-- SVG Staff Visual -->
+                    <div class="w-full flex justify-center py-2">
+                        <svg id="flashcardSvg" viewBox="0 0 800 280" class="w-full h-auto select-none"></svg>
+                    </div>
+
+                    <!-- Speed Progress Bar Countdown -->
+                    <div class="w-full bg-stone-300 rounded-full h-2 overflow-hidden mt-2">
+                        <div id="cardTimerBar" class="bg-amber-600 h-full w-full transition-all duration-100 ease-linear"></div>
+                    </div>
+                </div>
+
+                <!-- Feedback & Audio Status Banner -->
+                <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex justify-between items-center shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <button id="btnToggleMic" class="py-3 px-5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2 text-sm">
+                            <i class="fa-solid fa-microphone"></i>
+                            <span id="micBtnText">Start Practice</span>
+                        </button>
+                        <div class="text-xs">
+                            <span class="text-stone-500 block font-mono">Detected Input:</span>
+                            <span id="detectedNotesDisplay" class="text-amber-400 font-bold font-mono text-sm">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Correct / Incorrect Visual Indicator -->
+                    <div id="statusBadge" class="text-stone-500 font-bold text-sm px-4 py-2 rounded-xl bg-stone-950 border border-stone-800">
+                        Waiting to start...
+                    </div>
+                </div>
+
             </div>
+
+            <!-- Right Side: Trainer Settings & Controls -->
+            <div class="bg-stone-900 border border-stone-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl gap-5">
+                
+                <h3 class="text-stone-200 font-bold text-base border-b border-stone-800 pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-amber-500"></i> Flashcard Settings
+                </h3>
+
+                <!-- 1. Speed Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-stone-400 mb-1">
+                        <label for="speedSlider"><i class="fa-solid fa-stopwatch text-amber-500 mr-1"></i> Card Duration (Speed)</label>
+                        <span id="sliderValText" class="text-amber-400 font-mono font-bold">4.0 sec</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="1.0" max="8.0" step="0.5" value="4.0" class="w-full accent-amber-500 cursor-pointer h-2 bg-stone-800 rounded-lg appearance-none">
+                    <div class="flex justify-between text-[10px] text-stone-600 mt-1">
+                        <span>Fast (1s)</span>
+                        <span>Slow (8s)</span>
+                    </div>
+                </div>
+
+                <!-- 2. Note or Chord Radio Options -->
+                <div>
+                    <label class="text-xs font-semibold text-stone-400 block mb-2">Prompt Type</label>
+                    <div class="grid grid-cols-3 gap-1.5 radio-btn-group">
+                        <input type="radio" id="typeSingle" name="promptType" value="single" checked class="hidden">
+                        <label for="typeSingle" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">One Note</label>
+
+                        <input type="radio" id="typeChord" name="promptType" value="chord" class="hidden">
+                        <label for="typeChord" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Chord</label>
+
+                        <input type="radio" id="typeBoth" name="promptType" value="both" class="hidden">
+                        <label for="typeBoth" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Both</label>
+                    </div>
+                </div>
+
+                <!-- 3. Hand Exercise Radio Options -->
+                <div>
+                    <label class="text-xs font-semibold text-stone-400 block mb-2">Hand Exercise</label>
+                    <div class="grid grid-cols-3 gap-1.5 radio-btn-group">
+                        <input type="radio" id="handRight" name="handOption" value="right" checked class="hidden">
+                        <label for="handRight" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Right (Treble)</label>
+
+                        <input type="radio" id="handLeft" name="handOption" value="left" class="hidden">
+                        <label for="handLeft" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Left (Bass)</label>
+
+                        <input type="radio" id="handBoth" name="handOption" value="both" class="hidden">
+                        <label for="handBoth" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Both Hands</label>
+                    </div>
+                </div>
+
+                <!-- 4. Random vs Song Notes Radio Options -->
+                <div>
+                    <label class="text-xs font-semibold text-stone-400 block mb-2">Note Sequence Source</label>
+                    <div class="grid grid-cols-2 gap-2 radio-btn-group mb-2">
+                        <input type="radio" id="srcRandom" name="sourceOption" value="random" checked class="hidden">
+                        <label for="srcRandom" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Random Notes</label>
+
+                        <input type="radio" id="srcSong" name="sourceOption" value="song" class="hidden">
+                        <label for="srcSong" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Song Notes</label>
+                    </div>
+
+                    <!-- Song Selection Dropdown (Shown when Song Notes is selected) -->
+                    <div id="songSelectContainer" class="hidden">
+                        <select id="songSelect" class="w-full bg-stone-950 border border-stone-800 text-amber-400 text-xs font-semibold rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
+                            <option value="threeBlindMice">Three Blind Mice</option>
+                            <option value="jingleBells">Jingle Bells</option>
+                            <option value="thisOldMan">This Old Man</option>
+                            <option value="happyBirthday">Happy Birthday</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
         </main>
 
-        <!-- Expanded 4-Octave Keyboard Visualizer (C2 - C6) -->
-        <section class="bg-stone-900 border border-stone-800 rounded-2xl p-4 md:p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-stone-300 font-semibold text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-keyboard text-amber-500"></i>
-                    4-Octave Piano Keyboard (C2 – C6)
-                </h3>
-                <span class="text-xs text-stone-500">Click multiple keys to test chord recognition</span>
+        <!-- Interactive Keyboard Visualizer -->
+        <section class="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-2xl">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs text-stone-400 font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-keyboard text-amber-500"></i> Keyboard Visualizer (C2 – C6)
+                </span>
+                <span class="text-[11px] text-stone-500">Click keys to practice audio feedback</span>
             </div>
-
-            <div class="w-full overflow-x-auto pb-2">
-                <div id="keyboardContainer" class="relative h-44 min-w-[900px] max-w-full mx-auto flex justify-center">
-                    <!-- Keys rendered dynamically -->
+            <div class="w-full overflow-x-auto pb-1">
+                <div id="keyboardContainer" class="relative h-36 min-w-[800px] max-w-full mx-auto flex justify-center">
+                    <!-- Dynamic Piano Keys -->
                 </div>
             </div>
         </section>
@@ -174,70 +255,56 @@
         const START_MIDI = 36; // C2
         const END_MIDI = 84;   // C6
 
-        // --- Chord Recognition Engine ---
-        class ChordAnalyzer {
-            static identifyChord(midiNotes) {
-                if (!midiNotes || midiNotes.length === 0) return { name: "--", notes: [] };
+        // Preset Songs Note Library
+        const SONG_LIBRARY = {
+            threeBlindMice: [
+                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "C4", midi: [60] },
+                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "C4", midi: [60] },
+                { name: "G4", midi: [67] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] },
+                { name: "G4", midi: [67] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] }
+            ],
+            jingleBells: [
+                { name: "E4", midi: [64] }, { name: "E4", midi: [64] }, { name: "E4", midi: [64] },
+                { name: "E4", midi: [64] }, { name: "E4", midi: [64] }, { name: "E4", midi: [64] },
+                { name: "E4", midi: [64] }, { name: "G4", midi: [67] }, { name: "C4", midi: [60] },
+                { name: "D4", midi: [62] }, { name: "E4", midi: [64] }, { name: "F4", midi: [65] }
+            ],
+            thisOldMan: [
+                { name: "G4", midi: [67] }, { name: "E4", midi: [64] }, { name: "G4", midi: [67] },
+                { name: "G4", midi: [67] }, { name: "E4", midi: [64] }, { name: "G4", midi: [67] },
+                { name: "A4", midi: [69] }, { name: "G4", midi: [67] }, { name: "F4", midi: [65] },
+                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "E4", midi: [64] }
+            ],
+            happyBirthday: [
+                { name: "C4", midi: [60] }, { name: "C4", midi: [60] }, { name: "D4", midi: [62] },
+                { name: "C4", midi: [60] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] },
+                { name: "C4", midi: [60] }, { name: "C4", midi: [60] }, { name: "D4", midi: [62] },
+                { name: "C4", midi: [60] }, { name: "G4", midi: [67] }, { name: "F4", midi: [65] }
+            ]
+        };
 
-                // Unique MIDI notes sorted ascending
-                const uniqueMidis = [...new Set(midiNotes)].sort((a, b) => a - b);
-                const noteNamesFormatted = uniqueMidis.map(m => `${NOTE_NAMES[m % 12]}${Math.floor(m / 12) - 1}`);
-
-                if (uniqueMidis.length === 1) {
-                    return { name: `${noteNamesFormatted[0]} (Single Note)`, notes: noteNamesFormatted };
-                }
-
-                // Pitch classes (0 to 11)
-                const pitchClasses = [...new Set(uniqueMidis.map(m => m % 12))].sort((a, b) => a - b);
-                const bassPitchClass = uniqueMidis[0] % 12;
-                const bassRootName = NOTE_NAMES[bassPitchClass];
-
-                if (pitchClasses.length === 2) {
-                    const interval = (pitchClasses[1] - pitchClasses[0] + 12) % 12;
-                    if (interval === 7) return { name: `${bassRootName}5 (Power Chord)`, notes: noteNamesFormatted };
-                    return { name: `${NOTE_NAMES[pitchClasses[0]]} + ${NOTE_NAMES[pitchClasses[1]]}`, notes: noteNamesFormatted };
-                }
-
-                // Triads and 7ths Pattern Matcher
-                const CHORD_PATTERNS = [
-                    { name: "Maj", intervals: [0, 4, 7] },
-                    { name: "min", intervals: [0, 3, 7] },
-                    { name: "dim", intervals: [0, 3, 6] },
-                    { name: "aug", intervals: [0, 4, 8] },
-                    { name: "sus2", intervals: [0, 2, 7] },
-                    { name: "sus4", intervals: [0, 5, 7] },
-                    { name: "7", intervals: [0, 4, 7, 10] },
-                    { name: "Maj7", intervals: [0, 4, 7, 11] },
-                    { name: "m7", intervals: [0, 3, 7, 10] },
-                    { name: "m7b5", intervals: [0, 3, 6, 10] },
-                    { name: "dim7", intervals: [0, 3, 6, 9] }
-                ];
-
-                for (let rootPC of pitchClasses) {
-                    const relIntervals = pitchClasses.map(pc => (pc - rootPC + 12) % 12).sort((a, b) => a - b);
-                    const rootName = NOTE_NAMES[rootPC];
-
-                    for (let pattern of CHORD_PATTERNS) {
-                        const isMatch = pattern.intervals.every(i => relIntervals.includes(i));
-                        if (isMatch) {
-                            const isInversion = rootPC !== bassPitchClass;
-                            const chordName = isInversion 
-                                ? `${rootName} ${pattern.name} / ${bassRootName}`
-                                : `${rootName} ${pattern.name}`;
-                            return { name: chordName, notes: noteNamesFormatted };
-                        }
-                    }
-                }
-
-                return { name: `${bassRootName} Cluster`, notes: noteNamesFormatted };
-            }
-        }
+        // Preset Chord Patterns
+        const CHORD_PRESETS = {
+            right: [
+                { name: "C Major", midi: [60, 64, 67] },
+                { name: "G Major", midi: [62, 67, 71] },
+                { name: "F Major", midi: [60, 65, 69] },
+                { name: "A Minor", midi: [60, 64, 69] },
+                { name: "D Minor", midi: [62, 65, 69] }
+            ],
+            left: [
+                { name: "C Major", midi: [36, 40, 43] },
+                { name: "G Major", midi: [43, 47, 50] },
+                { name: "F Major", midi: [41, 45, 48] },
+                { name: "A Minor", midi: [45, 48, 52] },
+                { name: "D Minor", midi: [38, 41, 45] }
+            ]
+        };
 
         // --- Audio Synthesizer Class ---
         class AudioSynth {
             constructor() {
                 this.ctx = null;
-                this.preset = 'felt';
             }
 
             init() {
@@ -250,33 +317,22 @@
                 }
             }
 
-            playPitch(midiNote, duration = 1.2) {
+            playPitch(midiNote, duration = 0.8) {
                 this.init();
                 const now = this.ctx.currentTime;
                 const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
 
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                const filter = this.ctx.createBiquadFilter();
 
-                if (this.preset === 'grand') {
-                    osc.type = 'triangle';
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(3000, now);
-                } else {
-                    osc.type = 'sine';
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(1200, now);
-                    filter.frequency.linearRampToValueAtTime(300, now + duration);
-                }
-
+                osc.type = 'triangle';
                 osc.frequency.setValueAtTime(freq, now);
+
                 gain.gain.setValueAtTime(0.0001, now);
-                gain.gain.linearRampToValueAtTime(0.7, now + 0.02);
+                gain.gain.linearRampToValueAtTime(0.5, now + 0.02);
                 gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-                osc.connect(filter);
-                filter.connect(gain);
+                osc.connect(gain);
                 gain.connect(this.ctx.destination);
 
                 osc.start(now);
@@ -284,7 +340,7 @@
             }
         }
 
-        // --- Grand Staff Renderer (C2 - C6) ---
+        // --- Staff Renderer ---
         class StaffRenderer {
             constructor(svgId) {
                 this.svg = document.getElementById(svgId);
@@ -294,21 +350,21 @@
             renderBaseStaff() {
                 this.svg.innerHTML = '';
                 const xStart = 80;
-                const width = 730;
-                const trebleY = 60;
-                const bassY = 180;
+                const width = 680;
+                const trebleY = 50;
+                const bassY = 170;
                 const lineSpacing = 10;
 
-                // Treble Staff Lines
+                // Treble Lines
                 for (let i = 0; i < 5; i++) {
                     this.createSVGLine(xStart, trebleY + i * lineSpacing, xStart + width, trebleY + i * lineSpacing);
                 }
-                // Bass Staff Lines
+                // Bass Lines
                 for (let i = 0; i < 5; i++) {
                     this.createSVGLine(xStart, bassY + i * lineSpacing, xStart + width, bassY + i * lineSpacing);
                 }
 
-                // Clef Symbols
+                // Clefs
                 this.createText(xStart - 35, trebleY + 38, '𝄞', '42px');
                 this.createText(xStart - 35, bassY + 32, '𝄢', '36px');
 
@@ -337,40 +393,39 @@
                 this.svg.appendChild(t);
             }
 
-            drawActiveNotes(midiArray) {
+            drawPromptNotes(midiArray) {
                 this.noteGroup.innerHTML = '';
                 if (!midiArray || midiArray.length === 0) return;
 
                 const step = 5;
                 const noteOffsets = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
-                
-                // Spread notes horizontally if a chord is played
-                midiArray.forEach((midi, idx) => {
-                    const x = 360 + (idx * 30);
+
+                midiArray.forEach((midi) => {
+                    const x = 400; // Centered notehead
                     const octave = Math.floor(midi / 12) - 5;
                     const noteIndex = midi % 12;
                     const diatonicSteps = octave * 7 + noteOffsets[noteIndex];
 
-                    const y = 150 - (diatonicSteps * step); // Center C4 at y=150
+                    const y = 140 - (diatonicSteps * step); // Center C4 at y=140
 
-                    // Ledger Lines below Bass Staff (C2, D2, E2, F2)
-                    if (midi <= 38) { // C2, C#2, D2
-                        this.createNoteLedger(x, 260); // Ledger line 2 below bass
-                        this.createNoteLedger(x, 250); // Ledger line 1 below bass
-                    } else if (midi <= 41) { // E2, F2
-                        this.createNoteLedger(x, 230);
+                    // Ledger Lines
+                    if (midi <= 38) { // Bass Low
+                        this.createNoteLedger(x, 250);
+                        this.createNoteLedger(x, 240);
+                    } else if (midi <= 41) {
+                        this.createNoteLedger(x, 220);
                     } else if (midi === 60) { // Middle C4
-                        this.createNoteLedger(x, 150);
-                    } else if (midi >= 81) { // High A5+
-                        this.createNoteLedger(x, 50);
+                        this.createNoteLedger(x, 140);
+                    } else if (midi >= 81) { // High Treble
+                        this.createNoteLedger(x, 40);
                     }
 
                     // Notehead
                     const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
                     ellipse.setAttribute('cx', x);
                     ellipse.setAttribute('cy', y);
-                    ellipse.setAttribute('rx', '6.5');
-                    ellipse.setAttribute('ry', '4.5');
+                    ellipse.setAttribute('rx', '7');
+                    ellipse.setAttribute('ry', '5');
                     ellipse.setAttribute('transform', `rotate(-20 ${x} ${y})`);
                     ellipse.setAttribute('fill', '#d97706');
                     ellipse.setAttribute('stroke', '#78350f');
@@ -379,11 +434,11 @@
 
                     // Stem
                     const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    const stemUp = midi < 71;
+                    const stemUp = midi < 60;
                     stem.setAttribute('x1', stemUp ? x + 6 : x - 6);
                     stem.setAttribute('y1', y);
                     stem.setAttribute('x2', stemUp ? x + 6 : x - 6);
-                    stem.setAttribute('y2', stemUp ? y - 26 : y + 26);
+                    stem.setAttribute('y2', stemUp ? y - 28 : y + 28);
                     stem.setAttribute('stroke', '#78350f');
                     stem.setAttribute('stroke-width', '1.5');
                     this.noteGroup.appendChild(stem);
@@ -391,7 +446,7 @@
                     // Sharp Accidental
                     if (NOTE_NAMES[noteIndex].includes('#')) {
                         const sharp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        sharp.setAttribute('x', x - 18);
+                        sharp.setAttribute('x', x - 20);
                         sharp.setAttribute('y', y + 5);
                         sharp.setAttribute('font-size', '16');
                         sharp.setAttribute('font-weight', 'bold');
@@ -404,9 +459,9 @@
 
             createNoteLedger(x, y) {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', x - 12);
+                line.setAttribute('x1', x - 14);
                 line.setAttribute('y1', y);
-                line.setAttribute('x2', x + 12);
+                line.setAttribute('x2', x + 14);
                 line.setAttribute('y2', y);
                 line.setAttribute('stroke', '#1c1917');
                 line.setAttribute('stroke-width', '1.5');
@@ -414,20 +469,18 @@
             }
         }
 
-        // --- Keyboard Renderer (C2 - C6) ---
+        // --- Keyboard Renderer ---
         class KeyboardRenderer {
-            constructor(containerId, synth, onActiveKeysChange) {
+            constructor(containerId, synth) {
                 this.container = document.getElementById(containerId);
                 this.synth = synth;
-                this.onActiveKeysChange = onActiveKeysChange;
                 this.keyMap = new Map();
-                this.activeMidiSet = new Set();
                 this.renderKeys();
             }
 
             renderKeys() {
                 this.container.innerHTML = '';
-                const totalWhiteKeys = 29; // C2 to C6 inclusive
+                const totalWhiteKeys = 29; // C2 to C6
                 let whiteIndex = 0;
 
                 for (let midi = START_MIDI; midi <= END_MIDI; midi++) {
@@ -436,7 +489,7 @@
                     const octave = Math.floor(midi / 12) - 1;
 
                     const keyEl = document.createElement('div');
-                    
+
                     if (!isBlack) {
                         keyEl.className = 'piano-key white-key absolute bottom-0 flex flex-col justify-end items-center pb-2 cursor-pointer select-none';
                         keyEl.style.width = `calc(100% / ${totalWhiteKeys})`;
@@ -453,20 +506,12 @@
                         keyEl.className = 'piano-key black-key absolute top-0 cursor-pointer select-none';
                         keyEl.style.width = `calc((100% / ${totalWhiteKeys}) * 0.65)`;
                         keyEl.style.left = `calc((${whiteIndex - 1} + 0.68) * (100% / ${totalWhiteKeys}))`;
-                        keyEl.style.height = '62%';
+                        keyEl.style.height = '60%';
                     }
 
                     keyEl.addEventListener('pointerdown', (e) => {
                         e.preventDefault();
                         this.synth.playPitch(midi);
-                        
-                        if (this.activeMidiSet.has(midi)) {
-                            this.activeMidiSet.delete(midi);
-                        } else {
-                            this.activeMidiSet.add(midi);
-                        }
-                        
-                        this.updateVisuals();
                     });
 
                     this.container.appendChild(keyEl);
@@ -474,43 +519,28 @@
                 }
             }
 
-            setActiveMidis(midiArray) {
-                this.activeMidiSet = new Set(midiArray);
-                this.updateVisuals();
-            }
-
-            updateVisuals() {
-                this.keyMap.forEach((el, midi) => {
-                    if (this.activeMidiSet.has(midi)) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
+            highlightMidis(midiArray) {
+                this.clearAll();
+                midiArray.forEach(midi => {
+                    const keyEl = this.keyMap.get(midi);
+                    if (keyEl) keyEl.classList.add('active');
                 });
-
-                if (this.onActiveKeysChange) {
-                    this.onActiveKeysChange([...this.activeMidiSet]);
-                }
             }
 
             clearAll() {
-                this.activeMidiSet.clear();
-                this.updateVisuals();
+                this.keyMap.forEach(el => el.classList.remove('active'));
             }
         }
 
-        // --- Polyphonic Spectrum Pitch Detector ---
-        class PolyphonicPitchDetector {
-            constructor(onPolyPitchDetected, onVolumeChange) {
-                this.onPolyPitchDetected = onPolyPitchDetected;
-                this.onVolumeChange = onVolumeChange;
+        // --- Pitch Detector Engine ---
+        class PitchDetector {
+            constructor(onNotesDetected) {
+                this.onNotesDetected = onNotesDetected;
                 this.audioCtx = null;
-                this.gainNode = null;
                 this.analyser = null;
                 this.micStream = null;
                 this.isListening = false;
                 this.animFrame = null;
-                this.gainMultiplier = 6;
             }
 
             async start() {
@@ -520,24 +550,17 @@
                 this.audioCtx = new AudioCtx();
                 const source = this.audioCtx.createMediaStreamSource(this.micStream);
 
-                this.gainNode = this.audioCtx.createGain();
-                this.gainNode.gain.setValueAtTime(this.gainMultiplier, this.audioCtx.currentTime);
+                const gainNode = this.audioCtx.createGain();
+                gainNode.gain.setValueAtTime(6.0, this.audioCtx.currentTime); // Gain boost
 
                 this.analyser = this.audioCtx.createAnalyser();
-                this.analyser.fftSize = 8192; // High resolution FFT for C2-C6 spectrum
+                this.analyser.fftSize = 8192;
 
-                source.connect(this.gainNode);
-                this.gainNode.connect(this.analyser);
+                source.connect(gainNode);
+                gainNode.connect(this.analyser);
 
                 this.isListening = true;
                 this.process();
-            }
-
-            setGain(multiplier) {
-                this.gainMultiplier = multiplier;
-                if (this.gainNode && this.audioCtx) {
-                    this.gainNode.gain.setValueAtTime(multiplier, this.audioCtx.currentTime);
-                }
             }
 
             stop() {
@@ -554,51 +577,46 @@
                 const freqData = new Float32Array(bufferLength);
                 this.analyser.getFloatFrequencyData(freqData);
 
-                // Compute Volume
+                // Compute overall signal
                 let sum = 0;
                 for (let i = 0; i < bufferLength; i++) {
                     if (freqData[i] > -100) sum += Math.pow(10, freqData[i] / 20);
                 }
                 const rms = sum / bufferLength;
-                if (this.onVolumeChange) this.onVolumeChange(rms);
 
                 if (rms > 0.0005) {
-                    const detectedMidis = this.findSpectrumPeaks(freqData, this.audioCtx.sampleRate);
-                    this.onPolyPitchDetected(detectedMidis);
+                    const detectedMidis = this.extractPeaks(freqData, this.audioCtx.sampleRate);
+                    this.onNotesDetected(detectedMidis);
                 } else {
-                    this.onPolyPitchDetected([]);
+                    this.onNotesDetected([]);
                 }
 
                 this.animFrame = requestAnimationFrame(() => this.process());
             }
 
-            findSpectrumPeaks(freqData, sampleRate) {
+            extractPeaks(freqData, sampleRate) {
                 const detectedMidis = [];
-                const binHz = sampleRate / (this.analyser.fftSize);
-                const magnitudeThreshold = -62; // dB threshold
+                const binHz = sampleRate / this.analyser.fftSize;
+                const threshold = -62;
 
-                const peakBins = [];
+                const peaks = [];
                 for (let i = 5; i < freqData.length - 5; i++) {
-                    if (freqData[i] > magnitudeThreshold) {
+                    if (freqData[i] > threshold) {
                         if (freqData[i] > freqData[i - 1] && freqData[i] > freqData[i + 1]) {
                             const freqHz = i * binHz;
                             const midi = Math.round(69 + 12 * Math.log2(freqHz / 440));
                             if (midi >= START_MIDI && midi <= END_MIDI) {
-                                peakBins.push({ midi, db: freqData[i] });
+                                peaks.push({ midi, db: freqData[i] });
                             }
                         }
                     }
                 }
 
-                // Filter out harmonic overtones
-                peakBins.sort((a, b) => b.db - a.db);
-                for (let peak of peakBins) {
-                    const isOvertone = detectedMidis.some(existingMidi => {
-                        const interval = (peak.midi - existingMidi);
-                        return interval === 12 || interval === 19 || interval === 24; // 8ve, 12th, 15th
-                    });
-                    if (!isOvertone && detectedMidis.length < 5) {
-                        detectedMidis.push(peak.midi);
+                peaks.sort((a, b) => b.db - a.db);
+                for (let p of peaks) {
+                    const isOvertone = detectedMidis.some(m => (p.midi - m) === 12 || (p.midi - m) === 19);
+                    if (!isOvertone && detectedMidis.length < 4) {
+                        detectedMidis.push(p.midi);
                     }
                 }
 
@@ -606,77 +624,244 @@
             }
         }
 
-        // --- Main App Controller ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const synth = new AudioSynth();
-            const staffRenderer = new StaffRenderer('staffSvg');
+        // --- Main Flashcard App Manager ---
+        class FlashcardApp {
+            constructor() {
+                this.synth = new AudioSynth();
+                this.staffRenderer = new StaffRenderer('flashcardSvg');
+                this.keyboard = new KeyboardRenderer('keyboardContainer', this.synth);
 
-            const chordDisplay = document.getElementById('chordDisplay');
-            const notesListDisplay = document.getElementById('notesListDisplay');
-            const volumeBar = document.getElementById('volumeBar');
-            const volumeVal = document.getElementById('volumeVal');
-            const soundSelect = document.getElementById('soundSelect');
-            const btnToggleMic = document.getElementById('btnToggleMic');
-            const micBtnText = document.getElementById('micBtnText');
-            const gainSlider = document.getElementById('gainSlider');
-            const gainVal = document.getElementById('gainVal');
+                this.score = 0;
+                this.streak = 0;
+                this.currentPrompt = null;
+                this.songIndex = 0;
+                this.cardTimer = null;
+                this.timerStartTime = 0;
+                this.cardDurationMs = 4000;
+                this.isCorrectHandled = false;
 
-            const keyboard = new KeyboardRenderer('keyboardContainer', synth, (activeMidis) => {
-                handleMidiUpdates(activeMidis);
-            });
-
-            function handleMidiUpdates(midiArray) {
-                const chordResult = ChordAnalyzer.identifyChord(midiArray);
-                chordDisplay.textContent = chordResult.name;
-                notesListDisplay.textContent = chordResult.notes.length > 0 
-                    ? `Active Notes: ${chordResult.notes.join(', ')}` 
-                    : 'Active Notes: None';
-
-                staffRenderer.drawActiveNotes(midiArray);
+                this.bindUI();
+                this.pitchDetector = new PitchDetector((midis) => this.handleAudioInput(midis));
             }
 
-            const pitchDetector = new PolyphonicPitchDetector(
-                (detectedMidis) => {
-                    keyboard.setActiveMidis(detectedMidis);
-                },
-                (rms) => {
-                    const pct = Math.min(100, Math.round(rms * 10000));
-                    volumeBar.style.width = `${pct}%`;
-                    volumeVal.textContent = `${pct}%`;
-                }
-            );
+            bindUI() {
+                this.btnToggleMic = document.getElementById('btnToggleMic');
+                this.micBtnText = document.getElementById('micBtnText');
+                this.targetLabel = document.getElementById('targetLabel');
+                this.clefBadge = document.getElementById('clefBadge');
+                this.statusBadge = document.getElementById('statusBadge');
+                this.detectedNotesDisplay = document.getElementById('detectedNotesDisplay');
+                this.scoreDisplay = document.getElementById('scoreDisplay');
+                this.streakDisplay = document.getElementById('streakDisplay');
+                this.speedDisplayVal = document.getElementById('speedDisplayVal');
+                this.sliderValText = document.getElementById('sliderValText');
+                this.cardTimerBar = document.getElementById('cardTimerBar');
+                this.speedSlider = document.getElementById('speedSlider');
+                this.songSelectContainer = document.getElementById('songSelectContainer');
+                this.songSelect = document.getElementById('songSelect');
 
-            btnToggleMic.addEventListener('click', async () => {
-                synth.init();
-                if (!pitchDetector.isListening) {
-                    try {
-                        await pitchDetector.start();
-                        micBtnText.textContent = 'Stop Microphone';
-                        btnToggleMic.classList.replace('bg-amber-500', 'bg-red-500');
-                        btnToggleMic.classList.replace('hover:bg-amber-400', 'hover:bg-red-400');
-                    } catch (err) {
-                        alert('Microphone access denied: ' + err.message);
+                // Speed Slider Listener
+                this.speedSlider.addEventListener('input', (e) => {
+                    const secs = parseFloat(e.target.value);
+                    this.cardDurationMs = secs * 1000;
+                    this.speedDisplayVal.textContent = `${secs.toFixed(1)}s`;
+                    this.sliderValText.textContent = `${secs.toFixed(1)} sec`;
+                });
+
+                // Source Radio Switcher (Random vs Song)
+                document.querySelectorAll('input[name="sourceOption"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        if (e.target.value === 'song') {
+                            this.songSelectContainer.classList.remove('hidden');
+                        } else {
+                            this.songSelectContainer.classList.add('hidden');
+                        }
+                        this.songIndex = 0;
+                        this.nextCard();
+                    });
+                });
+
+                this.songSelect.addEventListener('change', () => {
+                    this.songIndex = 0;
+                    this.nextCard();
+                });
+
+                document.querySelectorAll('input[name="promptType"], input[name="handOption"]').forEach(radio => {
+                    radio.addEventListener('change', () => this.nextCard());
+                });
+
+                // Start Practice Mic Button
+                this.btnToggleMic.addEventListener('click', async () => {
+                    this.synth.init();
+                    if (!this.pitchDetector.isListening) {
+                        try {
+                            await this.pitchDetector.start();
+                            this.micBtnText.textContent = 'Pause Practice';
+                            this.btnToggleMic.classList.replace('bg-amber-500', 'bg-red-500');
+                            this.nextCard();
+                        } catch (err) {
+                            alert('Microphone access required for flashcard listening: ' + err.message);
+                        }
+                    } else {
+                        this.pitchDetector.stop();
+                        this.micBtnText.textContent = 'Start Practice';
+                        this.btnToggleMic.classList.replace('bg-red-500', 'bg-amber-500');
+                        this.clearTimer();
+                        this.statusBadge.textContent = 'Practice Paused';
                     }
-                } else {
-                    pitchDetector.stop();
-                    micBtnText.textContent = 'Enable Microphone';
-                    btnToggleMic.classList.replace('bg-red-500', 'bg-amber-500');
-                    btnToggleMic.classList.replace('hover:bg-red-400', 'hover:bg-amber-400');
-                    keyboard.clearAll();
-                    volumeBar.style.width = '0%';
-                    volumeVal.textContent = '0%';
+                });
+            }
+
+            getSettings() {
+                const type = document.querySelector('input[name="promptType"]:checked').value;
+                const hand = document.querySelector('input[name="handOption"]:checked').value;
+                const source = document.querySelector('input[name="sourceOption"]:checked').value;
+                const songKey = this.songSelect.value;
+
+                return { type, hand, source, songKey };
+            }
+
+            generatePrompt() {
+                const settings = this.getSettings();
+                let isChord = settings.type === 'chord' || (settings.type === 'both' && Math.random() > 0.5);
+
+                // Determine Hand & Clef
+                let hand = settings.hand;
+                if (hand === 'both') {
+                    hand = Math.random() > 0.5 ? 'right' : 'left';
                 }
-            });
 
-            gainSlider.addEventListener('input', (e) => {
-                const val = parseInt(e.target.value, 10);
-                gainVal.textContent = `${val}x Boost`;
-                pitchDetector.setGain(val);
-            });
+                // If Song Mode selected
+                if (settings.source === 'song') {
+                    const songNotes = SONG_LIBRARY[settings.songKey];
+                    const noteObj = songNotes[this.songIndex % songNotes.length];
+                    this.songIndex++;
 
-            soundSelect.addEventListener('change', (e) => {
-                synth.preset = e.target.value;
-            });
+                    let targetMidi = noteObj.midi;
+                    if (hand === 'left') { // Transpose for Bass Clef if Left Hand chosen
+                        targetMidi = targetMidi.map(m => m - 24);
+                    }
+
+                    return {
+                        name: `${noteObj.name} (${settings.songKey})`,
+                        midi: targetMidi,
+                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
+                    };
+                }
+
+                // Random Note / Chord Mode
+                if (isChord) {
+                    const chordList = CHORD_PRESETS[hand];
+                    const picked = chordList[Math.floor(Math.random() * chordList.length)];
+                    return {
+                        name: picked.name,
+                        midi: picked.midi,
+                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
+                    };
+                } else {
+                    // Single Note Generation
+                    const minMidi = hand === 'left' ? 36 : 60; // C2-C4 or C4-C6
+                    const maxMidi = hand === 'left' ? 60 : 84;
+                    
+                    const whiteKeyMidis = [];
+                    for (let m = minMidi; m <= maxMidi; m++) {
+                        if (!NOTE_NAMES[m % 12].includes('#')) whiteKeyMidis.push(m);
+                    }
+                    const pickedMidi = whiteKeyMidis[Math.floor(Math.random() * whiteKeyMidis.length)];
+                    const noteName = NOTE_NAMES[pickedMidi % 12];
+                    const octave = Math.floor(pickedMidi / 12) - 1;
+
+                    return {
+                        name: `${noteName}${octave}`,
+                        midi: [pickedMidi],
+                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
+                    };
+                }
+            }
+
+            nextCard() {
+                this.clearTimer();
+                this.isCorrectHandled = false;
+
+                this.currentPrompt = this.generatePrompt();
+                this.targetLabel.textContent = this.currentPrompt.name;
+                this.clefBadge.textContent = this.currentPrompt.clef;
+
+                this.staffRenderer.drawPromptNotes(this.currentPrompt.midi);
+                this.statusBadge.textContent = 'Listening...';
+                this.statusBadge.className = 'text-amber-400 font-bold text-sm px-4 py-2 rounded-xl bg-amber-950/40 border border-amber-800';
+
+                this.startTimer();
+            }
+
+            startTimer() {
+                this.timerStartTime = Date.now();
+                this.cardTimerBar.style.width = '100%';
+
+                const updateInterval = 50;
+                this.cardTimer = setInterval(() => {
+                    const elapsed = Date.now() - this.timerStartTime;
+                    const remainingPct = Math.max(0, 100 - (elapsed / this.cardDurationMs) * 100);
+                    this.cardTimerBar.style.width = `${remainingPct}%`;
+
+                    if (elapsed >= this.cardDurationMs) {
+                        this.handleTimeOut();
+                    }
+                }, updateInterval);
+            }
+
+            clearTimer() {
+                if (this.cardTimer) clearInterval(this.cardTimer);
+            }
+
+            handleAudioInput(detectedMidis) {
+                if (!this.currentPrompt || this.isCorrectHandled) return;
+
+                if (detectedMidis.length > 0) {
+                    const formattedNames = detectedMidis.map(m => `${NOTE_NAMES[m % 12]}${Math.floor(m/12)-1}`);
+                    this.detectedNotesDisplay.textContent = formattedNames.join(', ');
+                    this.keyboard.highlightMidis(detectedMidis);
+                } else {
+                    this.detectedNotesDisplay.textContent = '--';
+                    this.keyboard.clearAll();
+                }
+
+                // Check Match Logic
+                const targetMidis = this.currentPrompt.midi;
+                const isMatch = targetMidis.every(target => detectedMidis.includes(target));
+
+                if (isMatch && detectedMidis.length > 0) {
+                    this.isCorrectHandled = true;
+                    this.clearTimer();
+
+                    // Score Update
+                    this.score += 10;
+                    this.streak += 1;
+                    this.scoreDisplay.textContent = this.score;
+                    this.streakDisplay.textContent = this.streak;
+
+                    this.statusBadge.textContent = 'Correct! 🎉';
+                    this.statusBadge.className = 'text-teal-400 font-bold text-sm px-4 py-2 rounded-xl bg-teal-950/60 border border-teal-800 animate-bounce';
+
+                    setTimeout(() => this.nextCard(), 800);
+                }
+            }
+
+            handleTimeOut() {
+                this.clearTimer();
+                this.streak = 0;
+                this.streakDisplay.textContent = '0';
+
+                this.statusBadge.textContent = 'Time Up!';
+                this.statusBadge.className = 'text-red-400 font-bold text-sm px-4 py-2 rounded-xl bg-red-950/60 border border-red-800';
+
+                setTimeout(() => this.nextCard(), 1000);
+            }
+        }
+
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new FlashcardApp();
         });
     </script>
 </body>
