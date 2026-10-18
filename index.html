@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Piano Sight-Reading Flashcards</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+        }
+
+        html, body {
+            height: 100dvh; /* Dynamic Viewport Height accounts for dynamic browser toolbars */
+            width: 100vw;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f0d0b;
@@ -21,6 +34,11 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            /* Respect smartphone notch and bottom gesture bar safe areas */
+            padding-top: max(0.5rem, var(--sat));
+            padding-bottom: max(0.75rem, var(--sab));
+            padding-left: max(0.5rem, var(--sal));
+            padding-right: max(0.5rem, var(--sar));
         }
 
         .serif-font {
@@ -47,13 +65,13 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-between p-2 md:p-4 select-none cursor-pointer">
+<body class="flex flex-col items-center justify-between select-none cursor-pointer">
 
     <!-- Top Info Bar -->
     <header class="w-full max-w-5xl flex justify-between items-center px-4 py-2 bg-stone-900/90 border border-stone-800 rounded-2xl backdrop-blur-md shadow-lg shrink-0 z-10">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-music text-amber-500 text-lg"></i>
-            <h1 class="serif-font text-lg md:text-2xl font-bold text-stone-100 tracking-tight">
+            <h1 class="serif-font text-base md:text-2xl font-bold text-stone-100 tracking-tight">
                 Piano Sight-Reading Tutor
             </h1>
         </div>
@@ -68,33 +86,33 @@
         </div>
     </header>
 
-    <!-- Main Display Stage (Occupies Maximum Height) -->
-    <main class="w-full max-w-5xl flex-1 my-2 parchment-card rounded-3xl border border-amber-900/30 p-2 md:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+    <!-- Main Display Stage (Dynamically fits above toolbar) -->
+    <main class="w-full max-w-5xl flex-1 my-2 parchment-card rounded-3xl border border-amber-900/30 p-2 md:p-4 flex flex-col justify-center items-center relative overflow-hidden min-h-0">
         <div class="w-full h-full flex items-center justify-center">
-            <svg id="staffSvg" viewBox="0 0 500 440" class="w-full h-full max-h-[82vh] select-none"></svg>
+            <svg id="staffSvg" viewBox="0 0 500 440" class="w-full h-full max-h-full select-none"></svg>
         </div>
     </main>
 
-    <!-- Bottom Action Footer -->
-    <footer id="interactiveFooter" class="w-full max-w-5xl bg-stone-900/95 border-2 border-amber-500/40 tap-pulse rounded-2xl p-3 md:p-4 flex flex-row justify-between items-center gap-3 shrink-0 shadow-2xl transition-all z-10">
+    <!-- Bottom Action Footer (Padded away from device home bars) -->
+    <footer id="interactiveFooter" class="w-full max-w-5xl bg-stone-900/95 border-2 border-amber-500/40 tap-pulse rounded-2xl p-2.5 md:p-4 flex flex-row justify-between items-center gap-3 shrink-0 shadow-2xl transition-all z-10">
         
         <!-- Status Text -->
         <div class="flex items-center gap-3">
-            <div id="statusIconBg" class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
-                <i id="statusIcon" class="fa-solid fa-hand-pointer text-lg"></i>
+            <div id="statusIconBg" class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                <i id="statusIcon" class="fa-solid fa-hand-pointer text-base md:text-lg"></i>
             </div>
             <div>
-                <span id="subText" class="text-[10px] uppercase tracking-widest text-stone-400 font-bold block">Tap Anywhere</span>
-                <p id="mainInstruction" class="text-xs md:text-sm font-semibold text-stone-200">
+                <span id="subText" class="text-[9px] md:text-[10px] uppercase tracking-widest text-stone-400 font-bold block">Tap Anywhere</span>
+                <p id="mainInstruction" class="text-xs md:text-sm font-semibold text-stone-200 leading-snug">
                     Tap screen to reveal note name
                 </p>
             </div>
         </div>
 
         <!-- Revealed Note Box -->
-        <div id="noteBox" class="min-w-[130px] md:min-w-[160px] px-4 py-2 bg-stone-950 border border-stone-800 rounded-xl text-center flex flex-col justify-center shadow-inner">
-            <span class="text-[9px] font-bold text-stone-500 uppercase tracking-widest block">Note Name</span>
-            <span id="noteNameText" class="text-2xl md:text-3xl font-black text-amber-400 font-mono tracking-tight">?</span>
+        <div id="noteBox" class="min-w-[110px] md:min-w-[160px] px-3 py-1.5 md:py-2 bg-stone-950 border border-stone-800 rounded-xl text-center flex flex-col justify-center shadow-inner">
+            <span class="text-[8px] md:text-[9px] font-bold text-stone-500 uppercase tracking-widest block">Note Name</span>
+            <span id="noteNameText" class="text-xl md:text-3xl font-black text-amber-400 font-mono tracking-tight">?</span>
         </div>
 
     </footer>
@@ -208,7 +226,6 @@
                 this.renderBaseStaff();
             }
 
-            // Calculate Y coordinate based on Diatonic Index relative to Middle C (C4 = 0)
             getDiatonicY(midi) {
                 const octave = Math.floor(midi / 12) - 1;
                 const noteInOctave = midi % 12;
@@ -227,13 +244,13 @@
                 this.createLine(xL - 8, 120, xL - 8, 320, '#2b231d', '4');
                 this.createLine(xL, 120, xL, 320, '#2b231d', '2');
 
-                // 2. Treble Staff Lines (Indices +2, +4, +6, +8, +10 => Y = 200, 180, 160, 140, 120)
+                // 2. Treble Staff Lines
                 for (let i = 0; i < 5; i++) {
                     const y = 200 - (i * 20);
                     this.createLine(xL, y, xR, y, '#3a2e25', '2');
                 }
 
-                // 3. Bass Staff Lines (Indices -10, -8, -6, -4, -2 => Y = 320, 300, 280, 260, 240)
+                // 3. Bass Staff Lines
                 for (let i = 0; i < 5; i++) {
                     const y = 320 - (i * 20);
                     this.createLine(xL, y, xR, y, '#3a2e25', '2');
@@ -277,19 +294,16 @@
                 const { index, y } = this.getDiatonicY(noteData.midi);
 
                 // --- Ledger Lines Logic ---
-                // Middle C (Index 0)
                 if (index === 0) {
                     this.createLedgerLine(x, this.Y_MID_C);
                 }
-                // Above Treble Staff (A5 at +12, C6 at +14)
                 if (index >= 12) {
-                    this.createLedgerLine(x, 100); // +12 Ledger
-                    if (index >= 14) this.createLedgerLine(x, 80); // +14 Ledger
+                    this.createLedgerLine(x, 100);
+                    if (index >= 14) this.createLedgerLine(x, 80);
                 }
-                // Below Bass Staff (E2 at -12, C2 at -14)
                 if (index <= -12) {
-                    this.createLedgerLine(x, 340); // -12 Ledger
-                    if (index <= -14) this.createLedgerLine(x, 360); // -14 Ledger
+                    this.createLedgerLine(x, 340);
+                    if (index <= -14) this.createLedgerLine(x, 360);
                 }
 
                 // Notehead
@@ -334,7 +348,7 @@
                 this.synth = new AudioSynth();
                 this.staffRenderer = new GrandStaffRenderer('staffSvg');
 
-                this.state = 'START'; // 'START', 'REVEAL_PENDING', 'NEXT_PENDING'
+                this.state = 'START';
                 this.currentNote = null;
                 this.lastMidi = -1;
 
@@ -350,7 +364,6 @@
                 this.clefBadge = document.getElementById('clefBadge');
                 this.btnReplay = document.getElementById('btnReplay');
 
-                // Global Screen Tap
                 document.body.addEventListener('pointerdown', (e) => {
                     if (e.target.closest('#btnReplay')) return;
                     this.handleTap();
@@ -391,8 +404,8 @@
 
                 this.subText.textContent = 'Tap Anywhere';
                 this.mainInstruction.textContent = 'Tap screen to reveal note name';
-                this.statusIcon.className = 'fa-solid fa-eye text-lg';
-                this.statusIconBg.className = 'w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0';
+                this.statusIcon.className = 'fa-solid fa-eye text-base md:text-lg';
+                this.statusIconBg.className = 'w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0';
 
                 this.clefBadge.textContent = this.currentNote.clef;
             }
@@ -407,8 +420,8 @@
 
                 this.subText.textContent = 'Tap Again';
                 this.mainInstruction.textContent = `It's ${this.currentNote.name} (${this.currentNote.desc})! Tap for next note.`;
-                this.statusIcon.className = 'fa-solid fa-arrow-right text-lg';
-                this.statusIconBg.className = 'w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 shrink-0';
+                this.statusIcon.className = 'fa-solid fa-arrow-right text-base md:text-lg';
+                this.statusIconBg.className = 'w-9 h-9 md:w-10 md:h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 shrink-0';
             }
         }
 
