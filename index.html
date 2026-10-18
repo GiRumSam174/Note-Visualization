@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piano Sight-Reading Flashcard Trainer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Piano Sight-Reading Flashcards</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,13 +11,16 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #12100e;
+            background-color: #0f0d0b;
             color: #f3f4f6;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .serif-font {
@@ -25,283 +28,117 @@
         }
 
         .parchment-card {
-            background: #f7f3e8;
-            background-image: radial-gradient(#ece3cb 15%, transparent 16%), radial-gradient(#ece3cb 15%, transparent 16%);
+            background: #f8f4e9;
+            background-image: radial-gradient(#ece2ca 15%, transparent 16%), radial-gradient(#ece2ca 15%, transparent 16%);
             background-size: 60px 60px;
             background-position: 0 0, 30px 30px;
             color: #1c1917;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 0 100px rgba(180, 150, 100, 0.2);
         }
 
-        .piano-key {
-            transition: background-color 0.08s ease, transform 0.05s ease;
-            user-select: none;
-            touch-action: manipulation;
+        .tap-pulse {
+            animation: pulse-border 2s infinite;
         }
 
-        .piano-key.white-key {
-            background: linear-gradient(to bottom, #ffffff 0%, #f4f0e6 100%);
-            border: 1px solid #b5a995;
-            border-bottom: 5px solid #92836f;
-            border-radius: 0 0 6px 6px;
-        }
-
-        .piano-key.white-key.active {
-            background: linear-gradient(to bottom, #fde68a 0%, #f59e0b 100%) !important;
-            border-bottom-color: #b45309 !important;
-            transform: translateY(3px);
-        }
-
-        .piano-key.black-key {
-            background: linear-gradient(to bottom, #332d29 0%, #110d0a 100%);
-            border: 1px solid #000;
-            border-radius: 0 0 4px 4px;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.5);
-            z-index: 10;
-        }
-
-        .piano-key.black-key.active {
-            background: linear-gradient(to bottom, #d97706 0%, #78350f 100%) !important;
-            transform: translateY(2px);
-        }
-
-        /* Custom Radio Button Styling */
-        .radio-btn-group input[type="radio"]:checked + label {
-            background-color: #f59e0b;
-            color: #0c0a09;
-            border-color: #f59e0b;
-            font-weight: 700;
+        @keyframes pulse-border {
+            0% { border-color: rgba(245, 158, 11, 0.3); }
+            50% { border-color: rgba(245, 158, 11, 0.9); }
+            100% { border-color: rgba(245, 158, 11, 0.3); }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-3 md:p-8">
+<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-between p-2 md:p-4 select-none cursor-pointer">
 
-    <div class="w-full max-w-5xl flex flex-col gap-6">
+    <!-- Top Info Bar -->
+    <header class="w-full max-w-5xl flex justify-between items-center px-4 py-2 bg-stone-900/90 border border-stone-800 rounded-2xl backdrop-blur-md shadow-lg shrink-0 z-10">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-music text-amber-500 text-lg"></i>
+            <h1 class="serif-font text-lg md:text-2xl font-bold text-stone-100 tracking-tight">
+                Piano Sight-Reading Tutor
+            </h1>
+        </div>
 
-        <!-- App Header & Scoreboard -->
-        <header class="flex flex-col md:flex-row justify-between items-center pb-4 border-b border-stone-800 gap-4">
+        <div class="flex items-center gap-3">
+            <span id="clefBadge" class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs rounded-full uppercase tracking-wider">
+                Grand Staff
+            </span>
+            <button id="btnReplay" class="p-2 hover:bg-stone-800 text-stone-400 hover:text-amber-400 rounded-xl transition" title="Replay Sound">
+                <i class="fa-solid fa-volume-high text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Display Stage (Occupies Maximum Height) -->
+    <main class="w-full max-w-5xl flex-1 my-2 parchment-card rounded-3xl border border-amber-900/30 p-2 md:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+        <div class="w-full h-full flex items-center justify-center">
+            <svg id="staffSvg" viewBox="0 0 500 440" class="w-full h-full max-h-[82vh] select-none"></svg>
+        </div>
+    </main>
+
+    <!-- Bottom Action Footer -->
+    <footer id="interactiveFooter" class="w-full max-w-5xl bg-stone-900/95 border-2 border-amber-500/40 tap-pulse rounded-2xl p-3 md:p-4 flex flex-row justify-between items-center gap-3 shrink-0 shadow-2xl transition-all z-10">
+        
+        <!-- Status Text -->
+        <div class="flex items-center gap-3">
+            <div id="statusIconBg" class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                <i id="statusIcon" class="fa-solid fa-hand-pointer text-lg"></i>
+            </div>
             <div>
-                <h1 class="serif-font text-3xl md:text-4xl font-bold text-amber-500 tracking-tight">
-                    Piano Flashcard Trainer
-                </h1>
-                <p class="text-xs text-stone-400 mt-0.5">
-                    Listen & match treble/bass stave notes in real time.
+                <span id="subText" class="text-[10px] uppercase tracking-widest text-stone-400 font-bold block">Tap Anywhere</span>
+                <p id="mainInstruction" class="text-xs md:text-sm font-semibold text-stone-200">
+                    Tap screen to reveal note name
                 </p>
             </div>
+        </div>
 
-            <!-- Score Stats -->
-            <div class="flex items-center gap-4 bg-stone-900 border border-stone-800 px-5 py-2.5 rounded-2xl shadow-lg">
-                <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Score</span>
-                    <span id="scoreDisplay" class="text-2xl font-black text-amber-400 font-mono">0</span>
-                </div>
-                <div class="h-8 w-px bg-stone-800"></div>
-                <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Streak</span>
-                    <span id="streakDisplay" class="text-2xl font-black text-teal-400 font-mono">0</span>
-                </div>
-                <div class="h-8 w-px bg-stone-800"></div>
-                <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-stone-500 block">Speed Pace</span>
-                    <span id="speedDisplayVal" class="text-2xl font-black text-amber-400 font-mono">4.0s</span>
-                </div>
-            </div>
-        </header>
+        <!-- Revealed Note Box -->
+        <div id="noteBox" class="min-w-[130px] md:min-w-[160px] px-4 py-2 bg-stone-950 border border-stone-800 rounded-xl text-center flex flex-col justify-center shadow-inner">
+            <span class="text-[9px] font-bold text-stone-500 uppercase tracking-widest block">Note Name</span>
+            <span id="noteNameText" class="text-2xl md:text-3xl font-black text-amber-400 font-mono tracking-tight">?</span>
+        </div>
 
-        <!-- Main Flashcard Section -->
-        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Left Side: Grand Staff Visualizer Card -->
-            <div class="md:col-span-2 flex flex-col gap-4">
-                
-                <div class="parchment-card rounded-2xl p-4 md:p-6 border border-amber-900/30 shadow-2xl relative">
-                    <!-- Flashcard Prompt Header -->
-                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-stone-900/10">
-                        <div>
-                            <span class="text-xs font-semibold text-stone-600 uppercase tracking-widest block">Target Prompt</span>
-                            <h2 id="targetLabel" class="serif-font text-2xl font-bold text-stone-900">Press Start to Begin</h2>
-                        </div>
-                        <span id="clefBadge" class="px-3 py-1 bg-amber-200/80 text-amber-900 font-bold text-xs rounded-full border border-amber-400/40">
-                            Treble Clef
-                        </span>
-                    </div>
-
-                    <!-- SVG Staff Visual -->
-                    <div class="w-full flex justify-center py-2">
-                        <svg id="flashcardSvg" viewBox="0 0 800 280" class="w-full h-auto select-none"></svg>
-                    </div>
-
-                    <!-- Speed Progress Bar Countdown -->
-                    <div class="w-full bg-stone-300 rounded-full h-2 overflow-hidden mt-2">
-                        <div id="cardTimerBar" class="bg-amber-600 h-full w-full transition-all duration-100 ease-linear"></div>
-                    </div>
-                </div>
-
-                <!-- Feedback & Audio Status Banner -->
-                <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex justify-between items-center shadow-xl">
-                    <div class="flex items-center gap-3">
-                        <button id="btnToggleMic" class="py-3 px-5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2 text-sm">
-                            <i class="fa-solid fa-microphone"></i>
-                            <span id="micBtnText">Start Practice</span>
-                        </button>
-                        <div class="text-xs">
-                            <span class="text-stone-500 block font-mono">Detected Input:</span>
-                            <span id="detectedNotesDisplay" class="text-amber-400 font-bold font-mono text-sm">--</span>
-                        </div>
-                    </div>
-
-                    <!-- Correct / Incorrect Visual Indicator -->
-                    <div id="statusBadge" class="text-stone-500 font-bold text-sm px-4 py-2 rounded-xl bg-stone-950 border border-stone-800">
-                        Waiting to start...
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Right Side: Trainer Settings & Controls -->
-            <div class="bg-stone-900 border border-stone-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl gap-5">
-                
-                <h3 class="text-stone-200 font-bold text-base border-b border-stone-800 pb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-amber-500"></i> Flashcard Settings
-                </h3>
-
-                <!-- 1. Speed Slider -->
-                <div>
-                    <div class="flex justify-between text-xs font-semibold text-stone-400 mb-1">
-                        <label for="speedSlider"><i class="fa-solid fa-stopwatch text-amber-500 mr-1"></i> Card Duration (Speed)</label>
-                        <span id="sliderValText" class="text-amber-400 font-mono font-bold">4.0 sec</span>
-                    </div>
-                    <input type="range" id="speedSlider" min="1.0" max="8.0" step="0.5" value="4.0" class="w-full accent-amber-500 cursor-pointer h-2 bg-stone-800 rounded-lg appearance-none">
-                    <div class="flex justify-between text-[10px] text-stone-600 mt-1">
-                        <span>Fast (1s)</span>
-                        <span>Slow (8s)</span>
-                    </div>
-                </div>
-
-                <!-- 2. Note or Chord Radio Options -->
-                <div>
-                    <label class="text-xs font-semibold text-stone-400 block mb-2">Prompt Type</label>
-                    <div class="grid grid-cols-3 gap-1.5 radio-btn-group">
-                        <input type="radio" id="typeSingle" name="promptType" value="single" checked class="hidden">
-                        <label for="typeSingle" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">One Note</label>
-
-                        <input type="radio" id="typeChord" name="promptType" value="chord" class="hidden">
-                        <label for="typeChord" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Chord</label>
-
-                        <input type="radio" id="typeBoth" name="promptType" value="both" class="hidden">
-                        <label for="typeBoth" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Both</label>
-                    </div>
-                </div>
-
-                <!-- 3. Hand Exercise Radio Options -->
-                <div>
-                    <label class="text-xs font-semibold text-stone-400 block mb-2">Hand Exercise</label>
-                    <div class="grid grid-cols-3 gap-1.5 radio-btn-group">
-                        <input type="radio" id="handRight" name="handOption" value="right" checked class="hidden">
-                        <label for="handRight" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Right (Treble)</label>
-
-                        <input type="radio" id="handLeft" name="handOption" value="left" class="hidden">
-                        <label for="handLeft" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Left (Bass)</label>
-
-                        <input type="radio" id="handBoth" name="handOption" value="both" class="hidden">
-                        <label for="handBoth" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Both Hands</label>
-                    </div>
-                </div>
-
-                <!-- 4. Random vs Song Notes Radio Options -->
-                <div>
-                    <label class="text-xs font-semibold text-stone-400 block mb-2">Note Sequence Source</label>
-                    <div class="grid grid-cols-2 gap-2 radio-btn-group mb-2">
-                        <input type="radio" id="srcRandom" name="sourceOption" value="random" checked class="hidden">
-                        <label for="srcRandom" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Random Notes</label>
-
-                        <input type="radio" id="srcSong" name="sourceOption" value="song" class="hidden">
-                        <label for="srcSong" class="py-2 text-center text-xs border border-stone-800 bg-stone-950 text-stone-400 rounded-lg cursor-pointer transition">Song Notes</label>
-                    </div>
-
-                    <!-- Song Selection Dropdown (Shown when Song Notes is selected) -->
-                    <div id="songSelectContainer" class="hidden">
-                        <select id="songSelect" class="w-full bg-stone-950 border border-stone-800 text-amber-400 text-xs font-semibold rounded-xl p-2.5 focus:outline-none focus:border-amber-500">
-                            <option value="threeBlindMice">Three Blind Mice</option>
-                            <option value="jingleBells">Jingle Bells</option>
-                            <option value="thisOldMan">This Old Man</option>
-                            <option value="happyBirthday">Happy Birthday</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-        </main>
-
-        <!-- Interactive Keyboard Visualizer -->
-        <section class="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-2xl">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs text-stone-400 font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-keyboard text-amber-500"></i> Keyboard Visualizer (C2 – C6)
-                </span>
-                <span class="text-[11px] text-stone-500">Click keys to practice audio feedback</span>
-            </div>
-            <div class="w-full overflow-x-auto pb-1">
-                <div id="keyboardContainer" class="relative h-36 min-w-[800px] max-w-full mx-auto flex justify-center">
-                    <!-- Dynamic Piano Keys -->
-                </div>
-            </div>
-        </section>
-
-    </div>
+    </footer>
 
     <script>
-        const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const START_MIDI = 36; // C2
-        const END_MIDI = 84;   // C6
+        // Exact Grand Staff Note Library (C2 to C6)
+        const FLASHCARD_NOTES = [
+            // BASS CLEF (C2 - B3)
+            { name: "C2", midi: 36, pitch: "C", octave: 2, clef: "Bass Clef", desc: "Low C (Ledger Line 2 Below)" },
+            { name: "D2", midi: 38, pitch: "D", octave: 2, clef: "Bass Clef", desc: "Space Below Ledger Line 1" },
+            { name: "E2", midi: 40, pitch: "E", octave: 2, clef: "Bass Clef", desc: "Low E (Ledger Line 1 Below)" },
+            { name: "F2", midi: 41, pitch: "F", octave: 2, clef: "Bass Clef", desc: "Space Below Line 1" },
+            { name: "G2", midi: 43, pitch: "G", octave: 2, clef: "Bass Clef", desc: "Line 1 (Bottom Line)" },
+            { name: "A2", midi: 45, pitch: "A", octave: 2, clef: "Bass Clef", desc: "Space 1" },
+            { name: "B2", midi: 47, pitch: "B", octave: 2, clef: "Bass Clef", desc: "Line 2" },
+            { name: "C3", midi: 48, pitch: "C", octave: 3, clef: "Bass Clef", desc: "Space 2" },
+            { name: "D3", midi: 50, pitch: "D", octave: 3, clef: "Bass Clef", desc: "Line 3 (Middle Line)" },
+            { name: "E3", midi: 52, pitch: "E", octave: 3, clef: "Bass Clef", desc: "Space 3" },
+            { name: "F3", midi: 53, pitch: "F", octave: 3, clef: "Bass Clef", desc: "Line 4" },
+            { name: "G3", midi: 55, pitch: "G", octave: 3, clef: "Bass Clef", desc: "Space 4" },
+            { name: "A3", midi: 57, pitch: "A", octave: 3, clef: "Bass Clef", desc: "Line 5 (Top Line)" },
+            { name: "B3", midi: 59, pitch: "B", octave: 3, clef: "Bass Clef", desc: "Space Above Line 5" },
 
-        // Preset Songs Note Library
-        const SONG_LIBRARY = {
-            threeBlindMice: [
-                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "C4", midi: [60] },
-                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "C4", midi: [60] },
-                { name: "G4", midi: [67] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] },
-                { name: "G4", midi: [67] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] }
-            ],
-            jingleBells: [
-                { name: "E4", midi: [64] }, { name: "E4", midi: [64] }, { name: "E4", midi: [64] },
-                { name: "E4", midi: [64] }, { name: "E4", midi: [64] }, { name: "E4", midi: [64] },
-                { name: "E4", midi: [64] }, { name: "G4", midi: [67] }, { name: "C4", midi: [60] },
-                { name: "D4", midi: [62] }, { name: "E4", midi: [64] }, { name: "F4", midi: [65] }
-            ],
-            thisOldMan: [
-                { name: "G4", midi: [67] }, { name: "E4", midi: [64] }, { name: "G4", midi: [67] },
-                { name: "G4", midi: [67] }, { name: "E4", midi: [64] }, { name: "G4", midi: [67] },
-                { name: "A4", midi: [69] }, { name: "G4", midi: [67] }, { name: "F4", midi: [65] },
-                { name: "E4", midi: [64] }, { name: "D4", midi: [62] }, { name: "E4", midi: [64] }
-            ],
-            happyBirthday: [
-                { name: "C4", midi: [60] }, { name: "C4", midi: [60] }, { name: "D4", midi: [62] },
-                { name: "C4", midi: [60] }, { name: "F4", midi: [65] }, { name: "E4", midi: [64] },
-                { name: "C4", midi: [60] }, { name: "C4", midi: [60] }, { name: "D4", midi: [62] },
-                { name: "C4", midi: [60] }, { name: "G4", midi: [67] }, { name: "F4", midi: [65] }
-            ]
-        };
+            // MIDDLE C (C4)
+            { name: "C4", midi: 60, pitch: "C", octave: 4, clef: "Middle C", desc: "Middle C (Center Ledger Line)" },
 
-        // Preset Chord Patterns
-        const CHORD_PRESETS = {
-            right: [
-                { name: "C Major", midi: [60, 64, 67] },
-                { name: "G Major", midi: [62, 67, 71] },
-                { name: "F Major", midi: [60, 65, 69] },
-                { name: "A Minor", midi: [60, 64, 69] },
-                { name: "D Minor", midi: [62, 65, 69] }
-            ],
-            left: [
-                { name: "C Major", midi: [36, 40, 43] },
-                { name: "G Major", midi: [43, 47, 50] },
-                { name: "F Major", midi: [41, 45, 48] },
-                { name: "A Minor", midi: [45, 48, 52] },
-                { name: "D Minor", midi: [38, 41, 45] }
-            ]
-        };
+            // TREBLE CLEF (D4 - C6)
+            { name: "D4", midi: 62, pitch: "D", octave: 4, clef: "Treble Clef", desc: "Space Below Line 1" },
+            { name: "E4", midi: 64, pitch: "E", octave: 4, clef: "Treble Clef", desc: "Line 1 (Bottom Line)" },
+            { name: "F4", midi: 65, pitch: "F", octave: 4, clef: "Treble Clef", desc: "Space 1" },
+            { name: "G4", midi: 67, pitch: "G", octave: 4, clef: "Treble Clef", desc: "Line 2" },
+            { name: "A4", midi: 69, pitch: "A", octave: 4, clef: "Treble Clef", desc: "Space 2" },
+            { name: "B4", midi: 71, pitch: "B", octave: 4, clef: "Treble Clef", desc: "Line 3 (Middle Line)" },
+            { name: "C5", midi: 72, pitch: "C", octave: 5, clef: "Treble Clef", desc: "Space 3" },
+            { name: "D5", midi: 74, pitch: "D", octave: 5, clef: "Treble Clef", desc: "Line 4" },
+            { name: "E5", midi: 76, pitch: "E", octave: 5, clef: "Treble Clef", desc: "Space 4" },
+            { name: "F5", midi: 77, pitch: "F", octave: 5, clef: "Treble Clef", desc: "Line 5 (Top Line)" },
+            { name: "G5", midi: 79, pitch: "G", octave: 5, clef: "Treble Clef", desc: "Space Above Line 5" },
+            { name: "A5", midi: 81, pitch: "A", octave: 5, clef: "Treble Clef", desc: "High A (Ledger Line 1 Above)" },
+            { name: "B5", midi: 83, pitch: "B", octave: 5, clef: "Treble Clef", desc: "Space Above Ledger Line 1" },
+            { name: "C6", midi: 84, pitch: "C", octave: 6, clef: "Treble Clef", desc: "High C (Ledger Line 2 Above)" }
+        ];
 
-        // --- Audio Synthesizer Class ---
+        // --- Web Audio Synthesizer ---
         class AudioSynth {
             constructor() {
                 this.ctx = null;
@@ -317,62 +154,101 @@
                 }
             }
 
-            playPitch(midiNote, duration = 0.8) {
+            playPitch(midiNote, duration = 1.5) {
                 this.init();
                 const now = this.ctx.currentTime;
                 const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
 
-                const osc = this.ctx.createOscillator();
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
+                const filter = this.ctx.createBiquadFilter();
 
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, now);
+                osc1.type = 'sine';
+                osc2.type = 'triangle';
+                osc1.frequency.setValueAtTime(freq, now);
+                osc2.frequency.setValueAtTime(freq * 2, now);
+
+                const osc2Gain = this.ctx.createGain();
+                osc2Gain.gain.value = 0.2;
+                osc2.connect(osc2Gain);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2200, now);
+                filter.frequency.exponentialRampToValueAtTime(350, now + duration);
 
                 gain.gain.setValueAtTime(0.0001, now);
-                gain.gain.linearRampToValueAtTime(0.5, now + 0.02);
+                gain.gain.linearRampToValueAtTime(0.85, now + 0.02);
                 gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-                osc.connect(gain);
+                osc1.connect(filter);
+                osc2Gain.connect(filter);
+                filter.connect(gain);
                 gain.connect(this.ctx.destination);
 
-                osc.start(now);
-                osc.stop(now + duration + 0.1);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + duration + 0.1);
+                osc2.stop(now + duration + 0.1);
             }
         }
 
-        // --- Staff Renderer ---
-        class StaffRenderer {
+        // --- Grand Staff Renderer ---
+        class GrandStaffRenderer {
             constructor(svgId) {
                 this.svg = document.getElementById(svgId);
+                
+                // Reference Geometry
+                this.Y_MID_C = 220;  // Middle C4 (Index 0)
+                this.STEP_Y = 10;     // Diatonic step = 10px (Line spacing = 20px)
+                this.X_LEFT = 100;
+                this.X_RIGHT = 460;
+                this.X_NOTE = 280;
+
                 this.renderBaseStaff();
+            }
+
+            // Calculate Y coordinate based on Diatonic Index relative to Middle C (C4 = 0)
+            getDiatonicY(midi) {
+                const octave = Math.floor(midi / 12) - 1;
+                const noteInOctave = midi % 12;
+                const diatonicMap = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
+                
+                const diatonicIndex = (octave - 4) * 7 + diatonicMap[noteInOctave];
+                return { index: diatonicIndex, y: this.Y_MID_C - (diatonicIndex * this.STEP_Y) };
             }
 
             renderBaseStaff() {
                 this.svg.innerHTML = '';
-                const xStart = 80;
-                const width = 680;
-                const trebleY = 50;
-                const bassY = 170;
-                const lineSpacing = 10;
+                const xL = this.X_LEFT;
+                const xR = this.X_RIGHT;
 
-                // Treble Lines
+                // 1. Thick Connecting Brace Bar on Left
+                this.createLine(xL - 8, 120, xL - 8, 320, '#2b231d', '4');
+                this.createLine(xL, 120, xL, 320, '#2b231d', '2');
+
+                // 2. Treble Staff Lines (Indices +2, +4, +6, +8, +10 => Y = 200, 180, 160, 140, 120)
                 for (let i = 0; i < 5; i++) {
-                    this.createSVGLine(xStart, trebleY + i * lineSpacing, xStart + width, trebleY + i * lineSpacing);
-                }
-                // Bass Lines
-                for (let i = 0; i < 5; i++) {
-                    this.createSVGLine(xStart, bassY + i * lineSpacing, xStart + width, bassY + i * lineSpacing);
+                    const y = 200 - (i * 20);
+                    this.createLine(xL, y, xR, y, '#3a2e25', '2');
                 }
 
-                // Clefs
-                this.createText(xStart - 35, trebleY + 38, '𝄞', '42px');
-                this.createText(xStart - 35, bassY + 32, '𝄢', '36px');
+                // 3. Bass Staff Lines (Indices -10, -8, -6, -4, -2 => Y = 320, 300, 280, 260, 240)
+                for (let i = 0; i < 5; i++) {
+                    const y = 320 - (i * 20);
+                    this.createLine(xL, y, xR, y, '#3a2e25', '2');
+                }
 
+                // 4. Large Clef Icons
+                this.createText(xL - 52, 205, '𝄞', '92px'); // Treble
+                this.createText(xL - 48, 278, '𝄢', '76px'); // Bass
+
+                // Group for Dynamic Notes & Ledgers
                 this.noteGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 this.svg.appendChild(this.noteGroup);
             }
 
-            createSVGLine(x1, y1, x2, y2, color = '#2b231d', width = '1.2') {
+            createLine(x1, y1, x2, y2, color = '#2b231d', width = '2') {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('x1', x1);
                 line.setAttribute('y1', y1);
@@ -393,473 +269,149 @@
                 this.svg.appendChild(t);
             }
 
-            drawPromptNotes(midiArray) {
+            drawNote(noteData) {
                 this.noteGroup.innerHTML = '';
-                if (!midiArray || midiArray.length === 0) return;
+                if (!noteData) return;
 
-                const step = 5;
-                const noteOffsets = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
+                const x = this.X_NOTE;
+                const { index, y } = this.getDiatonicY(noteData.midi);
 
-                midiArray.forEach((midi) => {
-                    const x = 400; // Centered notehead
-                    const octave = Math.floor(midi / 12) - 5;
-                    const noteIndex = midi % 12;
-                    const diatonicSteps = octave * 7 + noteOffsets[noteIndex];
+                // --- Ledger Lines Logic ---
+                // Middle C (Index 0)
+                if (index === 0) {
+                    this.createLedgerLine(x, this.Y_MID_C);
+                }
+                // Above Treble Staff (A5 at +12, C6 at +14)
+                if (index >= 12) {
+                    this.createLedgerLine(x, 100); // +12 Ledger
+                    if (index >= 14) this.createLedgerLine(x, 80); // +14 Ledger
+                }
+                // Below Bass Staff (E2 at -12, C2 at -14)
+                if (index <= -12) {
+                    this.createLedgerLine(x, 340); // -12 Ledger
+                    if (index <= -14) this.createLedgerLine(x, 360); // -14 Ledger
+                }
 
-                    const y = 140 - (diatonicSteps * step); // Center C4 at y=140
+                // Notehead
+                const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                ellipse.setAttribute('cx', x);
+                ellipse.setAttribute('cy', y);
+                ellipse.setAttribute('rx', '13');
+                ellipse.setAttribute('ry', '9');
+                ellipse.setAttribute('transform', `rotate(-20 ${x} ${y})`);
+                ellipse.setAttribute('fill', '#d97706');
+                ellipse.setAttribute('stroke', '#78350f');
+                ellipse.setAttribute('stroke-width', '2.8');
+                this.noteGroup.appendChild(ellipse);
 
-                    // Ledger Lines
-                    if (midi <= 38) { // Bass Low
-                        this.createNoteLedger(x, 250);
-                        this.createNoteLedger(x, 240);
-                    } else if (midi <= 41) {
-                        this.createNoteLedger(x, 220);
-                    } else if (midi === 60) { // Middle C4
-                        this.createNoteLedger(x, 140);
-                    } else if (midi >= 81) { // High Treble
-                        this.createNoteLedger(x, 40);
-                    }
-
-                    // Notehead
-                    const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-                    ellipse.setAttribute('cx', x);
-                    ellipse.setAttribute('cy', y);
-                    ellipse.setAttribute('rx', '7');
-                    ellipse.setAttribute('ry', '5');
-                    ellipse.setAttribute('transform', `rotate(-20 ${x} ${y})`);
-                    ellipse.setAttribute('fill', '#d97706');
-                    ellipse.setAttribute('stroke', '#78350f');
-                    ellipse.setAttribute('stroke-width', '1.5');
-                    this.noteGroup.appendChild(ellipse);
-
-                    // Stem
-                    const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    const stemUp = midi < 60;
-                    stem.setAttribute('x1', stemUp ? x + 6 : x - 6);
-                    stem.setAttribute('y1', y);
-                    stem.setAttribute('x2', stemUp ? x + 6 : x - 6);
-                    stem.setAttribute('y2', stemUp ? y - 28 : y + 28);
-                    stem.setAttribute('stroke', '#78350f');
-                    stem.setAttribute('stroke-width', '1.5');
-                    this.noteGroup.appendChild(stem);
-
-                    // Sharp Accidental
-                    if (NOTE_NAMES[noteIndex].includes('#')) {
-                        const sharp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        sharp.setAttribute('x', x - 20);
-                        sharp.setAttribute('y', y + 5);
-                        sharp.setAttribute('font-size', '16');
-                        sharp.setAttribute('font-weight', 'bold');
-                        sharp.setAttribute('fill', '#d97706');
-                        sharp.textContent = '♯';
-                        this.noteGroup.appendChild(sharp);
-                    }
-                });
+                // Stem
+                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                const stemUp = index < 0;
+                stem.setAttribute('x1', stemUp ? x + 11 : x - 11);
+                stem.setAttribute('y1', y);
+                stem.setAttribute('x2', stemUp ? x + 11 : x - 11);
+                stem.setAttribute('y2', stemUp ? y - 52 : y + 52);
+                stem.setAttribute('stroke', '#78350f');
+                stem.setAttribute('stroke-width', '2.8');
+                this.noteGroup.appendChild(stem);
             }
 
-            createNoteLedger(x, y) {
+            createLedgerLine(x, y) {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', x - 14);
+                line.setAttribute('x1', x - 25);
                 line.setAttribute('y1', y);
-                line.setAttribute('x2', x + 14);
+                line.setAttribute('x2', x + 25);
                 line.setAttribute('y2', y);
                 line.setAttribute('stroke', '#1c1917');
-                line.setAttribute('stroke-width', '1.5');
+                line.setAttribute('stroke-width', '2.2');
                 this.noteGroup.appendChild(line);
             }
         }
 
-        // --- Keyboard Renderer ---
-        class KeyboardRenderer {
-            constructor(containerId, synth) {
-                this.container = document.getElementById(containerId);
-                this.synth = synth;
-                this.keyMap = new Map();
-                this.renderKeys();
-            }
-
-            renderKeys() {
-                this.container.innerHTML = '';
-                const totalWhiteKeys = 29; // C2 to C6
-                let whiteIndex = 0;
-
-                for (let midi = START_MIDI; midi <= END_MIDI; midi++) {
-                    const noteName = NOTE_NAMES[midi % 12];
-                    const isBlack = noteName.includes('#');
-                    const octave = Math.floor(midi / 12) - 1;
-
-                    const keyEl = document.createElement('div');
-
-                    if (!isBlack) {
-                        keyEl.className = 'piano-key white-key absolute bottom-0 flex flex-col justify-end items-center pb-2 cursor-pointer select-none';
-                        keyEl.style.width = `calc(100% / ${totalWhiteKeys})`;
-                        keyEl.style.left = `calc(${whiteIndex} * (100% / ${totalWhiteKeys}))`;
-                        keyEl.style.height = '100%';
-
-                        const label = document.createElement('span');
-                        label.className = 'text-[9px] font-semibold text-stone-500 pointer-events-none';
-                        label.textContent = `${noteName}${octave}`;
-                        keyEl.appendChild(label);
-
-                        whiteIndex++;
-                    } else {
-                        keyEl.className = 'piano-key black-key absolute top-0 cursor-pointer select-none';
-                        keyEl.style.width = `calc((100% / ${totalWhiteKeys}) * 0.65)`;
-                        keyEl.style.left = `calc((${whiteIndex - 1} + 0.68) * (100% / ${totalWhiteKeys}))`;
-                        keyEl.style.height = '60%';
-                    }
-
-                    keyEl.addEventListener('pointerdown', (e) => {
-                        e.preventDefault();
-                        this.synth.playPitch(midi);
-                    });
-
-                    this.container.appendChild(keyEl);
-                    this.keyMap.set(midi, keyEl);
-                }
-            }
-
-            highlightMidis(midiArray) {
-                this.clearAll();
-                midiArray.forEach(midi => {
-                    const keyEl = this.keyMap.get(midi);
-                    if (keyEl) keyEl.classList.add('active');
-                });
-            }
-
-            clearAll() {
-                this.keyMap.forEach(el => el.classList.remove('active'));
-            }
-        }
-
-        // --- Pitch Detector Engine ---
-        class PitchDetector {
-            constructor(onNotesDetected) {
-                this.onNotesDetected = onNotesDetected;
-                this.audioCtx = null;
-                this.analyser = null;
-                this.micStream = null;
-                this.isListening = false;
-                this.animFrame = null;
-            }
-
-            async start() {
-                this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                this.audioCtx = new AudioCtx();
-                const source = this.audioCtx.createMediaStreamSource(this.micStream);
-
-                const gainNode = this.audioCtx.createGain();
-                gainNode.gain.setValueAtTime(6.0, this.audioCtx.currentTime); // Gain boost
-
-                this.analyser = this.audioCtx.createAnalyser();
-                this.analyser.fftSize = 8192;
-
-                source.connect(gainNode);
-                gainNode.connect(this.analyser);
-
-                this.isListening = true;
-                this.process();
-            }
-
-            stop() {
-                this.isListening = false;
-                if (this.animFrame) cancelAnimationFrame(this.animFrame);
-                if (this.micStream) this.micStream.getTracks().forEach(track => track.stop());
-                if (this.audioCtx) this.audioCtx.close();
-            }
-
-            process() {
-                if (!this.isListening) return;
-
-                const bufferLength = this.analyser.frequencyBinCount;
-                const freqData = new Float32Array(bufferLength);
-                this.analyser.getFloatFrequencyData(freqData);
-
-                // Compute overall signal
-                let sum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    if (freqData[i] > -100) sum += Math.pow(10, freqData[i] / 20);
-                }
-                const rms = sum / bufferLength;
-
-                if (rms > 0.0005) {
-                    const detectedMidis = this.extractPeaks(freqData, this.audioCtx.sampleRate);
-                    this.onNotesDetected(detectedMidis);
-                } else {
-                    this.onNotesDetected([]);
-                }
-
-                this.animFrame = requestAnimationFrame(() => this.process());
-            }
-
-            extractPeaks(freqData, sampleRate) {
-                const detectedMidis = [];
-                const binHz = sampleRate / this.analyser.fftSize;
-                const threshold = -62;
-
-                const peaks = [];
-                for (let i = 5; i < freqData.length - 5; i++) {
-                    if (freqData[i] > threshold) {
-                        if (freqData[i] > freqData[i - 1] && freqData[i] > freqData[i + 1]) {
-                            const freqHz = i * binHz;
-                            const midi = Math.round(69 + 12 * Math.log2(freqHz / 440));
-                            if (midi >= START_MIDI && midi <= END_MIDI) {
-                                peaks.push({ midi, db: freqData[i] });
-                            }
-                        }
-                    }
-                }
-
-                peaks.sort((a, b) => b.db - a.db);
-                for (let p of peaks) {
-                    const isOvertone = detectedMidis.some(m => (p.midi - m) === 12 || (p.midi - m) === 19);
-                    if (!isOvertone && detectedMidis.length < 4) {
-                        detectedMidis.push(p.midi);
-                    }
-                }
-
-                return detectedMidis.sort((a, b) => a - b);
-            }
-        }
-
-        // --- Main Flashcard App Manager ---
+        // --- App Controller ---
         class FlashcardApp {
             constructor() {
                 this.synth = new AudioSynth();
-                this.staffRenderer = new StaffRenderer('flashcardSvg');
-                this.keyboard = new KeyboardRenderer('keyboardContainer', this.synth);
+                this.staffRenderer = new GrandStaffRenderer('staffSvg');
 
-                this.score = 0;
-                this.streak = 0;
-                this.currentPrompt = null;
-                this.songIndex = 0;
-                this.cardTimer = null;
-                this.timerStartTime = 0;
-                this.cardDurationMs = 4000;
-                this.isCorrectHandled = false;
+                this.state = 'START'; // 'START', 'REVEAL_PENDING', 'NEXT_PENDING'
+                this.currentNote = null;
+                this.lastMidi = -1;
 
                 this.bindUI();
-                this.pitchDetector = new PitchDetector((midis) => this.handleAudioInput(midis));
             }
 
             bindUI() {
-                this.btnToggleMic = document.getElementById('btnToggleMic');
-                this.micBtnText = document.getElementById('micBtnText');
-                this.targetLabel = document.getElementById('targetLabel');
+                this.mainInstruction = document.getElementById('mainInstruction');
+                this.subText = document.getElementById('subText');
+                this.noteNameText = document.getElementById('noteNameText');
+                this.statusIcon = document.getElementById('statusIcon');
+                this.statusIconBg = document.getElementById('statusIconBg');
                 this.clefBadge = document.getElementById('clefBadge');
-                this.statusBadge = document.getElementById('statusBadge');
-                this.detectedNotesDisplay = document.getElementById('detectedNotesDisplay');
-                this.scoreDisplay = document.getElementById('scoreDisplay');
-                this.streakDisplay = document.getElementById('streakDisplay');
-                this.speedDisplayVal = document.getElementById('speedDisplayVal');
-                this.sliderValText = document.getElementById('sliderValText');
-                this.cardTimerBar = document.getElementById('cardTimerBar');
-                this.speedSlider = document.getElementById('speedSlider');
-                this.songSelectContainer = document.getElementById('songSelectContainer');
-                this.songSelect = document.getElementById('songSelect');
+                this.btnReplay = document.getElementById('btnReplay');
 
-                // Speed Slider Listener
-                this.speedSlider.addEventListener('input', (e) => {
-                    const secs = parseFloat(e.target.value);
-                    this.cardDurationMs = secs * 1000;
-                    this.speedDisplayVal.textContent = `${secs.toFixed(1)}s`;
-                    this.sliderValText.textContent = `${secs.toFixed(1)} sec`;
+                // Global Screen Tap
+                document.body.addEventListener('pointerdown', (e) => {
+                    if (e.target.closest('#btnReplay')) return;
+                    this.handleTap();
                 });
 
-                // Source Radio Switcher (Random vs Song)
-                document.querySelectorAll('input[name="sourceOption"]').forEach(radio => {
-                    radio.addEventListener('change', (e) => {
-                        if (e.target.value === 'song') {
-                            this.songSelectContainer.classList.remove('hidden');
-                        } else {
-                            this.songSelectContainer.classList.add('hidden');
-                        }
-                        this.songIndex = 0;
-                        this.nextCard();
-                    });
-                });
-
-                this.songSelect.addEventListener('change', () => {
-                    this.songIndex = 0;
-                    this.nextCard();
-                });
-
-                document.querySelectorAll('input[name="promptType"], input[name="handOption"]').forEach(radio => {
-                    radio.addEventListener('change', () => this.nextCard());
-                });
-
-                // Start Practice Mic Button
-                this.btnToggleMic.addEventListener('click', async () => {
-                    this.synth.init();
-                    if (!this.pitchDetector.isListening) {
-                        try {
-                            await this.pitchDetector.start();
-                            this.micBtnText.textContent = 'Pause Practice';
-                            this.btnToggleMic.classList.replace('bg-amber-500', 'bg-red-500');
-                            this.nextCard();
-                        } catch (err) {
-                            alert('Microphone access required for flashcard listening: ' + err.message);
-                        }
-                    } else {
-                        this.pitchDetector.stop();
-                        this.micBtnText.textContent = 'Start Practice';
-                        this.btnToggleMic.classList.replace('bg-red-500', 'bg-amber-500');
-                        this.clearTimer();
-                        this.statusBadge.textContent = 'Practice Paused';
+                this.btnReplay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (this.currentNote) {
+                        this.synth.playPitch(this.currentNote.midi);
                     }
                 });
             }
 
-            getSettings() {
-                const type = document.querySelector('input[name="promptType"]:checked').value;
-                const hand = document.querySelector('input[name="handOption"]:checked').value;
-                const source = document.querySelector('input[name="sourceOption"]:checked').value;
-                const songKey = this.songSelect.value;
+            handleTap() {
+                this.synth.init();
 
-                return { type, hand, source, songKey };
-            }
-
-            generatePrompt() {
-                const settings = this.getSettings();
-                let isChord = settings.type === 'chord' || (settings.type === 'both' && Math.random() > 0.5);
-
-                // Determine Hand & Clef
-                let hand = settings.hand;
-                if (hand === 'both') {
-                    hand = Math.random() > 0.5 ? 'right' : 'left';
-                }
-
-                // If Song Mode selected
-                if (settings.source === 'song') {
-                    const songNotes = SONG_LIBRARY[settings.songKey];
-                    const noteObj = songNotes[this.songIndex % songNotes.length];
-                    this.songIndex++;
-
-                    let targetMidi = noteObj.midi;
-                    if (hand === 'left') { // Transpose for Bass Clef if Left Hand chosen
-                        targetMidi = targetMidi.map(m => m - 24);
-                    }
-
-                    return {
-                        name: `${noteObj.name} (${settings.songKey})`,
-                        midi: targetMidi,
-                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
-                    };
-                }
-
-                // Random Note / Chord Mode
-                if (isChord) {
-                    const chordList = CHORD_PRESETS[hand];
-                    const picked = chordList[Math.floor(Math.random() * chordList.length)];
-                    return {
-                        name: picked.name,
-                        midi: picked.midi,
-                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
-                    };
-                } else {
-                    // Single Note Generation
-                    const minMidi = hand === 'left' ? 36 : 60; // C2-C4 or C4-C6
-                    const maxMidi = hand === 'left' ? 60 : 84;
-                    
-                    const whiteKeyMidis = [];
-                    for (let m = minMidi; m <= maxMidi; m++) {
-                        if (!NOTE_NAMES[m % 12].includes('#')) whiteKeyMidis.push(m);
-                    }
-                    const pickedMidi = whiteKeyMidis[Math.floor(Math.random() * whiteKeyMidis.length)];
-                    const noteName = NOTE_NAMES[pickedMidi % 12];
-                    const octave = Math.floor(pickedMidi / 12) - 1;
-
-                    return {
-                        name: `${noteName}${octave}`,
-                        midi: [pickedMidi],
-                        clef: hand === 'left' ? 'Bass Clef' : 'Treble Clef'
-                    };
+                if (this.state === 'START') {
+                    this.pickAndDisplayNewNote();
+                } else if (this.state === 'REVEAL_PENDING') {
+                    this.revealNoteName();
+                } else if (this.state === 'NEXT_PENDING') {
+                    this.pickAndDisplayNewNote();
                 }
             }
 
-            nextCard() {
-                this.clearTimer();
-                this.isCorrectHandled = false;
+            pickAndDisplayNewNote() {
+                let availableNotes = FLASHCARD_NOTES.filter(n => n.midi !== this.lastMidi);
+                const randomIndex = Math.floor(Math.random() * availableNotes.length);
+                this.currentNote = availableNotes[randomIndex];
+                this.lastMidi = this.currentNote.midi;
 
-                this.currentPrompt = this.generatePrompt();
-                this.targetLabel.textContent = this.currentPrompt.name;
-                this.clefBadge.textContent = this.currentPrompt.clef;
+                this.staffRenderer.drawNote(this.currentNote);
+                this.synth.playPitch(this.currentNote.midi);
 
-                this.staffRenderer.drawPromptNotes(this.currentPrompt.midi);
-                this.statusBadge.textContent = 'Listening...';
-                this.statusBadge.className = 'text-amber-400 font-bold text-sm px-4 py-2 rounded-xl bg-amber-950/40 border border-amber-800';
+                this.state = 'REVEAL_PENDING';
+                this.noteNameText.textContent = '?';
+                this.noteNameText.classList.replace('text-amber-400', 'text-stone-600');
 
-                this.startTimer();
+                this.subText.textContent = 'Tap Anywhere';
+                this.mainInstruction.textContent = 'Tap screen to reveal note name';
+                this.statusIcon.className = 'fa-solid fa-eye text-lg';
+                this.statusIconBg.className = 'w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0';
+
+                this.clefBadge.textContent = this.currentNote.clef;
             }
 
-            startTimer() {
-                this.timerStartTime = Date.now();
-                this.cardTimerBar.style.width = '100%';
+            revealNoteName() {
+                if (!this.currentNote) return;
 
-                const updateInterval = 50;
-                this.cardTimer = setInterval(() => {
-                    const elapsed = Date.now() - this.timerStartTime;
-                    const remainingPct = Math.max(0, 100 - (elapsed / this.cardDurationMs) * 100);
-                    this.cardTimerBar.style.width = `${remainingPct}%`;
+                this.state = 'NEXT_PENDING';
 
-                    if (elapsed >= this.cardDurationMs) {
-                        this.handleTimeOut();
-                    }
-                }, updateInterval);
-            }
+                this.noteNameText.textContent = this.currentNote.name;
+                this.noteNameText.classList.replace('text-stone-600', 'text-amber-400');
 
-            clearTimer() {
-                if (this.cardTimer) clearInterval(this.cardTimer);
-            }
-
-            handleAudioInput(detectedMidis) {
-                if (!this.currentPrompt || this.isCorrectHandled) return;
-
-                if (detectedMidis.length > 0) {
-                    const formattedNames = detectedMidis.map(m => `${NOTE_NAMES[m % 12]}${Math.floor(m/12)-1}`);
-                    this.detectedNotesDisplay.textContent = formattedNames.join(', ');
-                    this.keyboard.highlightMidis(detectedMidis);
-                } else {
-                    this.detectedNotesDisplay.textContent = '--';
-                    this.keyboard.clearAll();
-                }
-
-                // Check Match Logic
-                const targetMidis = this.currentPrompt.midi;
-                const isMatch = targetMidis.every(target => detectedMidis.includes(target));
-
-                if (isMatch && detectedMidis.length > 0) {
-                    this.isCorrectHandled = true;
-                    this.clearTimer();
-
-                    // Score Update
-                    this.score += 10;
-                    this.streak += 1;
-                    this.scoreDisplay.textContent = this.score;
-                    this.streakDisplay.textContent = this.streak;
-
-                    this.statusBadge.textContent = 'Correct! 🎉';
-                    this.statusBadge.className = 'text-teal-400 font-bold text-sm px-4 py-2 rounded-xl bg-teal-950/60 border border-teal-800 animate-bounce';
-
-                    setTimeout(() => this.nextCard(), 800);
-                }
-            }
-
-            handleTimeOut() {
-                this.clearTimer();
-                this.streak = 0;
-                this.streakDisplay.textContent = '0';
-
-                this.statusBadge.textContent = 'Time Up!';
-                this.statusBadge.className = 'text-red-400 font-bold text-sm px-4 py-2 rounded-xl bg-red-950/60 border border-red-800';
-
-                setTimeout(() => this.nextCard(), 1000);
+                this.subText.textContent = 'Tap Again';
+                this.mainInstruction.textContent = `It's ${this.currentNote.name} (${this.currentNote.desc})! Tap for next note.`;
+                this.statusIcon.className = 'fa-solid fa-arrow-right text-lg';
+                this.statusIconBg.className = 'w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 shrink-0';
             }
         }
 
-        // Initialize App on DOM Load
         document.addEventListener('DOMContentLoaded', () => {
             window.app = new FlashcardApp();
         });
